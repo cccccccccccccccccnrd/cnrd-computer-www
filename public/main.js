@@ -14,14 +14,17 @@ ws.onmessage = event => {
 function random () {
   for (const key in state) {
     const element = document.querySelector(`#${ key }`)
+    const width = element.offsetWidth
+    const height = element.offsetHeight
+
     const rx = Math.floor(Math.random() * Math.floor(500))
     const ry = Math.floor(Math.random() * Math.floor(500))
 
-    element.style.left = `${ rx }px`
-    element.style.top = `${ ry }px`
+    element.style.left = `${ state[key].rx - width / 2 }px`
+    element.style.top = `${ state[key].rx - height / 2 }px`
 
-    state[key].x = rx
-    state[key].y = ry
+    state[key].x = rx - width / 2
+    state[key].y = rx - width / 2
   }
 
   sendState()
