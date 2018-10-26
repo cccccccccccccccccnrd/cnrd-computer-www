@@ -23,3 +23,10 @@ body {
   transition: all 50ms;
   cursor: grab;
 }
+
+.square {
+  width: 100px;
+  height: 100px;
+  background: blue;
+  border-radius: 3px;
+}
