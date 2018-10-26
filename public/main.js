@@ -1,4 +1,4 @@
-const ws = new WebSocket('wss://cnrd.computer/ws')
+const ws = new WebSocket('ws://localhost:2001')
 
 let state = {}
 
