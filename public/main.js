@@ -22,6 +22,7 @@ function random () {
   }
 
   sendState()
+  setState()
 }
 
 function sendState () {
