@@ -19,6 +19,9 @@ function random () {
 
     element.style.left = `${ rx }px`
     element.style.top = `${ ry }px`
+
+    state[key].x = rx
+    state[key].y = ry
   }
 
   sendState()
