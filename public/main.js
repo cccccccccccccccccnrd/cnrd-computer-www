@@ -20,6 +20,8 @@ function random () {
     element.style.left = `${ rx }px`
     element.style.top = `${ ry }px`
   }
+
+  sendState()
 }
 
 function sendState () {
