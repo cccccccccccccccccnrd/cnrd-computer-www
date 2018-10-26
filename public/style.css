@@ -30,3 +30,7 @@ body {
   background: blue;
   border-radius: 3px;
 }
+
+[draggable=true] {
+  -khtml-user-drag: element;
+}
