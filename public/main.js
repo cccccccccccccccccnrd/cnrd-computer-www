@@ -11,7 +11,18 @@ ws.onmessage = event => {
   setState()
 }
 
-function sendState() {
+function random () {
+  for (const key in state) {
+    const element = document.querySelector(`#${ key }`)
+    const rx = Math.floor(Math.random() * Math.floor(500))
+    const ry = Math.floor(Math.random() * Math.floor(500))
+
+    element.style.left = `${ rx }px`
+    element.style.top = `${ ry }px`
+  }
+}
+
+function sendState () {
   ws.send(JSON.stringify(state))
 }
 
