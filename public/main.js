@@ -1,4 +1,4 @@
-const ws = new WebSocket('ws://cnrd.computer:2001')
+const ws = new WebSocket('wss://cnrd.computer:2001')
 
 let state = {}
 
