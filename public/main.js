@@ -21,10 +21,12 @@ function random () {
     const ry = Math.floor(Math.random() * Math.floor(500))
 
     element.style.left = `${ state[key].rx - width / 2 }px`
-    element.style.top = `${ state[key].rx - height / 2 }px`
+    element.style.top = `${ state[key].ry - height / 2 }px`
 
     state[key].x = rx - width / 2
-    state[key].y = rx - width / 2
+    state[key].y = ry - width / 2
+
+    setState()
   }
 
   sendState()
