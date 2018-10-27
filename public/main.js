@@ -3,9 +3,7 @@ const ws = new WebSocket('wss://cnrd.computer/ws')
 let state = {}
 
 ws.onmessage = event => {
-  console.log(event.data)
   const newState = JSON.parse(event.data)
-  console.log(newState)
   state = newState
 
   setState()
@@ -13,12 +11,14 @@ ws.onmessage = event => {
 
 function random () {
   for (const key in state) {
+    if (key === 'hi') return
+
     const element = document.querySelector(`#${ key }`)
     const width = element.offsetWidth
     const height = element.offsetHeight
 
-    const rx = Math.floor(Math.random() * Math.floor(500))
-    const ry = Math.floor(Math.random() * Math.floor(500))
+    const rx = Math.floor(Math.random() * Math.floor(700))
+    const ry = Math.floor(Math.random() * Math.floor(700))
 
     element.style.left = `${ state[key].rx - width / 2 }px`
     element.style.top = `${ state[key].ry - height / 2 }px`
@@ -48,7 +48,7 @@ function setState () {
 }
 
 function drag (event) {
-  const id = event.srcElement.id
+  const id = event.target.id
   const x = event.x
   const y = event.y
 
@@ -58,8 +58,11 @@ function drag (event) {
   sendState()
 }
 
-function preventDragImage (event) {
+function dragStart (event) {
+  console.log(event.target.id)
+  const id = event.target.id
   const img = new Image()
   img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+  event.dataTransfer.setData('text/plain', id)
   event.dataTransfer.setDragImage(img, 10, 10)
 }
