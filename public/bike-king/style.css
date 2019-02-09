@@ -1,0 +1,115 @@
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg) scale(0.8) translateY(35px);
+  }
+  100% {
+    transform: rotate(360deg) scale(0.8) translateY(35px);
+  }
+}
+
+@keyframes go {
+  0% {
+    transform: scale(0.7) translateX(0px);
+  }
+  100% {
+    transform: scale(0.7) translateX(500px);
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.rotate {
+  animation: rotate 1s infinite;
+}
+
+.go {
+  animation: go 700ms forwards;
+}
+
+.fade-out {
+  animation: fade-out 2s forwards;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+button {
+  padding: 0;
+  font-family: monospace;
+  font-size: 50px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.15);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+button:focus {
+  outline: 0;
+}
+
+button:active {
+  transform: scale(0.9);
+}
+
+#title {
+  position: relative;
+  transform: scale(0.8) translateY(35px);
+}
+
+#cool {
+  position: relative;
+  transform: scale(0.7);
+}
+
+#to {
+  position: absolute;
+  top: -56px;
+  left: 145px;
+  width: 215px;
+  transform: rotate(4deg);
+}
+
+#watch {
+  display: block;
+  position: absolute;
+  top: 0%;
+  left: 63%;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+}
+
+#bike {
+  width: 500px;
+}
+
+.stroke {
+  fill: none;
+  stroke: black;
+  stroke-linecap: round;
+  stroke-width: 1px;
+  filter: drop-shadow(5px 5px 10px #000);
+}
+
+#ui {
+  position: fixed;
+  bottom: 1em;
+}
