@@ -12,7 +12,7 @@
     transform: scale(0.7) translateX(0px);
   }
   100% {
-    transform: scale(0.7) translateX(500px);
+    transform: scale(0.7) translateX(100vw);
   }
 }
 
@@ -72,6 +72,7 @@ button:active {
 }
 
 #title {
+  max-width: 600px;
   transform: scale(0.8) translateY(35px);
 }
 
