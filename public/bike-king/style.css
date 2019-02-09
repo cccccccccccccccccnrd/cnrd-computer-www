@@ -78,7 +78,6 @@ button:active {
 #cool {
   position: relative;
   transform: scale(0.7);
-  overflow: hidden;
 }
 
 #to {
