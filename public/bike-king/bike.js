@@ -52,7 +52,7 @@ function go () {
     setTimeout(() => {
       cool.classList.add('go')
       document.body.classList.add('fade-out')
-    }, 1000)
+    }, 750)
   }, 4000)
 }
 
