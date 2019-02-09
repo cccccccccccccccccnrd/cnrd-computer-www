@@ -12,7 +12,7 @@
     transform: scale(0.7) translateX(0px);
   }
   100% {
-    transform: scale(0.7) translateX(100vw);
+    transform: scale(0.7) translateX(150vw);
   }
 }
 
