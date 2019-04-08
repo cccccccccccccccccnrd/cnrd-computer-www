@@ -9,6 +9,7 @@ const app = express()
 app.use('/', express.static(path.join(__dirname, 'public')))
 
 app.listen(2000)
+console.log('WWW listening on http://localhost:2000')
 
 const wss = new WebSocket.Server({ port: 2001 })
 
