@@ -9,7 +9,7 @@ download.addEventListener('click', () => {
   const canvas = fingerprint.filter(entry => entry.key === 'canvas')[0].value[1].replace('canvas fp:', '')
 
   const a = document.createElement('a')
-  a.download = `canvas-fingerprint-${ canvas.substring(canvas.length - 25, canvas.length - 5) }.txt`
+  a.download = `canvas-fingerprint-${ canvas.substring(100, 110) }.txt`
   const blob = new Blob([canvas], { type: 'text/plain' })
   a.href = window.URL.createObjectURL(blob)
   document.body.appendChild(a)
