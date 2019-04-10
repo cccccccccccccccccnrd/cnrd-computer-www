@@ -1,10 +1,21 @@
 const img = document.getElementById('img')
 const p = document.getElementById('p')
-const button = document.getElementById('button')
+const copy = document.getElementById('copy')
+const download = document.getElementById('download')
 
 let fingerprint
 
-button.addEventListener('click', () => {
+download.addEventListener('click', () => {
+  const canvas = fingerprint.filter(entry => entry.key === 'canvas')[0].value[1].replace('canvas fp:', '')
+
+  const a = document.createElement('a')
+  a.download = `canvas-fingerprint-${ canvas.substring(canvas.length - 12, canvas.length - 2) }.txt`
+  const blob = new Blob([canvas], { type: 'text/plain' })
+  a.href = window.URL.createObjectURL(blob)
+  a.click()
+})
+
+copy.addEventListener('click', () => {
   navigator.clipboard.writeText(fingerprint.filter(entry => entry.key === 'canvas')[0].value[1].replace('canvas fp:', ''))
 })
 
