@@ -32,6 +32,12 @@ function init () {
   })
 }
 
-requestIdleCallback(() => {
-  init()
-})
+if (window.requestIdleCallback) {
+  requestIdleCallback(() => {
+    init()
+  })
+} else {
+  setTimeout(() => {
+    init() 
+  }, 500)
+}
