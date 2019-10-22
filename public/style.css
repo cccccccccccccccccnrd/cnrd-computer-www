@@ -25,7 +25,7 @@ li {
   list-style-type: none;
 }
 
-img {
+img, video {
   max-width: 400px;
   width: 100%;
 }
