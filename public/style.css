@@ -34,25 +34,24 @@ img, video {
   display: flex;
 }
 
-.button {
+.proj {
   margin: 0.5em 0em;
-  padding: 0.5em;
+  padding: 1em;
   border: 1px solid black;
-}
-
-.button:focus {
-  outline: blue;
-}
-
-.button button {
-  display: block;
   cursor: pointer;
-  border: 0;
-  background: none;
-  font-size: 2em;
 }
 
-.button > * {
+.proj.show {
+  box-shadow: 1em 1em 1em rgba(0, 0, 255, 1);
+}
+
+.proj h2 {
+  display: block;
+  font-size: 2em;
+  font-weight: 400;
+}
+
+.proj > * {
   display: none;
   margin: 0.5em 0;
 }
