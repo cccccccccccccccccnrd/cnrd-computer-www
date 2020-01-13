@@ -2,7 +2,7 @@ console.log(`%c:---)`, 'padding: 5px; background: blue; color: white;')
 
 const name = document.getElementById('name')
 const conrad = document.getElementById('conrad')
-const buttons = [].slice.call(document.getElementsByClassName('button'))
+const projs = [].slice.call(document.getElementsByClassName('proj'))
 
 document.addEventListener('mousemove', (event) => {
   if (event.target.id === 'name') {
@@ -19,7 +19,7 @@ name.addEventListener('mouseleave', (event) => {
   conrad.style.display = 'none'
 })
 
-buttons.forEach(element => {
+projs.forEach(element => {
   element.addEventListener('click', function () {
     this.classList.toggle('show')
   })
