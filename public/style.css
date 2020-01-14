@@ -66,6 +66,13 @@ img, video {
   max-width: 400px;
 }
 
+#conrad .description {
+  padding: 1em;
+  background: white;
+  border: 1px solid black;
+  box-shadow: 1em 1em 1em rgba(0, 0, 255, 1);
+}
+
 @media screen and (max-width: 450px) {
   body {
     font-size: 20px;
