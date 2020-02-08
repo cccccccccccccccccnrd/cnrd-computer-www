@@ -35,6 +35,10 @@ img, video {
   display: flex;
 }
 
+.rounded {
+  border-radius: 20px;
+}
+
 .proj {
   margin: 0.5em 0em;
   padding: 1em;
