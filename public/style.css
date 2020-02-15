@@ -2,11 +2,11 @@ body {
   max-width: 600px;
   margin: 1em;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  font-size: 25px;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: black;
-  background: white;
+  color: white;
+  background: black;
 }
 
 p {
@@ -42,16 +42,17 @@ img, video {
 .proj {
   margin: 0.5em 0em;
   padding: 1em;
-  border: 1px solid black;
+  border-radius: 5px;
   cursor: pointer;
 }
 
 .proj.show {
-  box-shadow: 1em 1em 1em rgba(0, 0, 255, 1);
+  box-shadow: 0 0 10em rgba(0, 0, 255, 1);
 }
 
 .proj h2 {
   display: block;
+  margin: 0;
   font-size: 2em;
   font-weight: 400;
 }
@@ -79,9 +80,9 @@ img, video {
 
 #conrad .description {
   padding: 1em;
-  background: white;
-  border: 1px solid black;
-  box-shadow: 1em 1em 1em rgba(0, 0, 255, 1);
+  background: black;
+  border-radius: 5px;
+  box-shadow: 0 0 10em rgba(0, 0, 255, 1);
 }
 
 @media screen and (max-width: 450px) {
