@@ -1,8 +1,16 @@
 console.log(`%c:---)`, 'padding: 5px; background: blue; color: white;')
 
-const name = document.getElementById('name')
-const conrad = document.getElementById('conrad')
-const projs = [].slice.call(document.getElementsByClassName('proj'))
+const name = document.querySelector('#name')
+const conrad = document.querySelector('#conrad')
+const projs = [].slice.call(document.querySelectorAll('.proj'))
+const switchh = document.querySelector('#switch')
+
+switchh.addEventListener('click', (event) => {
+  switchh.classList.toggle('active')
+  projs.forEach((element) => {
+    element.classList.toggle('show')
+  })
+})
 
 document.addEventListener('mousemove', (event) => {
   if (event.target.id === 'name') {
@@ -19,7 +27,7 @@ name.addEventListener('mouseleave', (event) => {
   conrad.style.display = 'none'
 })
 
-projs.forEach(element => {
+projs.forEach((element) => {
   element.addEventListener('click', function () {
     this.classList.toggle('show')
   })
