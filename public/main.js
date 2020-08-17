@@ -1,5 +1,15 @@
 console.log(`%c:---)`, 'padding: 5px; background: blue; color: white;')
 
+const project = new URLSearchParams(window.location.search).get('project')
+
+if (project) {
+  open(project)
+}
+
+function open (project) {
+  document.querySelector(`#${ project }`).classList.toggle('show')
+}
+
 const name = document.querySelector('#name')
 const conrad = document.querySelector('#conrad')
 const projs = [].slice.call(document.querySelectorAll('.proj'))
