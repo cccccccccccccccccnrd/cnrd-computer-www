@@ -1,10 +1,18 @@
-:root {
+body {
   --primary: black;
   --secondary: white;
   --third: blue;
   --font-family: 'Arial', 'EB Garamond';
   --font-size: 18px;
 }
+
+/* body {
+  --primary: silver;
+  --secondary: white;
+  --third: pink;
+  --font-family: 'Arial', 'EB Garamond';
+  --font-size: 18px;
+} */
 
 * {
   box-sizing: border-box;
