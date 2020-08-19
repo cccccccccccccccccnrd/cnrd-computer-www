@@ -8,7 +8,7 @@ if (project) {
 
 function open (project) {
   document.querySelector(`#${ project }`).classList.toggle('show')
-  window.history.pushState('', '', '/')
+  window.history.pushState({}, {}, '/')
 }
 
 const name = document.querySelector('#name')
