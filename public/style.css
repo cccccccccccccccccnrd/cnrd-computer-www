@@ -1,15 +1,15 @@
 body {
   --primary: black;
   --secondary: white;
-  --third: blue;
+  --third: pink;
   --font-family: 'Arial', 'EB Garamond';
-  --font-size: 18px;
+  --font-size: 20px;
 }
 
 /* body {
-  --primary: silver;
+  --primary: black;
   --secondary: white;
-  --third: pink;
+  --third: blue;
   --font-family: 'Arial', 'EB Garamond';
   --font-size: 18px;
 } */
@@ -68,13 +68,17 @@ img, video {
 
 .proj {
   margin: 0.5em 0em;
-  /* padding: 1em 0; */
-  /* border-radius: 5px; */
   cursor: pointer;
 }
 
+* {
+  box-shadow: 0 0 0.6em var(--third);
+  border-radius: 0.2em;
+  padding: 0.4em;
+}
+
 .proj.show {
-  /* box-shadow: 0 0 10em var(--third); */
+  /* box-shadow: 0 0 1em var(--third); */
 }
 
 .proj h2 {
@@ -122,7 +126,7 @@ img, video {
   width: 3em;
   height: 1.25em;
   /* background: blue; */
-  border: 2px solid var(--third);
+  /* border: 2px solid var(--third); */
   border-radius: 100px;
   cursor: pointer;
 }
