@@ -1,9 +1,9 @@
 body {
-  --primary: black;
-  --secondary: white;
-  --third: pink;
+  --primary: white;
+  --secondary: black;
+  --third: white;
   --font-family: 'Arial', 'EB Garamond';
-  --font-size: 20px;
+  --font-size: 16px;
 }
 
 /* body {
@@ -24,16 +24,15 @@ html, body {
 }
 
 body {
-  position: relative;
-  max-width: 375px;
-  margin: 1em;
+  display: flex;
+  /* justify-content: center; */
+  width: 100%;
   font-family: var(--font-family);
   font-size: var(--font-size);
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--primary);
-  background: var(--secondary);
 }
 
 p {
@@ -46,7 +45,7 @@ a, a:visited {
 
 ul {
   padding: 0;
-  margin: 1em 0;
+  margin: 0;
 }
 
 li {
@@ -71,10 +70,21 @@ img, video {
   cursor: pointer;
 }
 
-* {
-  box-shadow: 0 0 0.6em var(--third);
-  border-radius: 0.2em;
+.all * {
+  box-shadow: 0 0 0.1em var(--third);
+  border-radius: 100px;
   padding: 0.4em;
+}
+
+.all *:hover {}
+
+.all {
+  position: relative;
+  max-width: 375px;
+  margin: 1em;
+  padding: 1em;
+  background: var(--secondary);
+  border-radius: 0.5em;
 }
 
 .proj.show {
@@ -85,6 +95,8 @@ img, video {
   display: block;
   margin: 0;
   font-size: 1em;
+  text-transform: uppercase;
+  /* text-align: center; */
   font-weight: 400;
 }
 
@@ -111,9 +123,8 @@ img, video {
 
 #conrad .description {
   padding: 0.5em;
+  color: var(--third);
   background: var(--secondary);
-  border-radius: 5px;
-  /* box-shadow: 0 0 10em var(--third); */
 }
 
 .ui {
@@ -125,8 +136,6 @@ img, video {
 .switch {
   width: 3em;
   height: 1.25em;
-  /* background: blue; */
-  /* border: 2px solid var(--third); */
   border-radius: 100px;
   cursor: pointer;
 }
@@ -142,5 +151,9 @@ img, video {
 @media screen and (max-width: 450px) {
   body {
     font-size: 16px;
+  }
+
+  .all {
+    max-width: none;
   }
 }
