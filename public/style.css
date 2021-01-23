@@ -1,18 +1,15 @@
+::selection {
+  color: white;
+  background-color: rgba(0, 0, 255, 0.99);
+}
+
 body {
   --primary: white;
-  --secondary: black;
+  --secondary: blue;
   --third: white;
   --font-family: 'Arial', 'EB Garamond';
   --font-size: 16px;
 }
-
-/* body {
-  --primary: black;
-  --secondary: white;
-  --third: blue;
-  --font-family: 'Arial', 'EB Garamond';
-  --font-size: 18px;
-} */
 
 * {
   box-sizing: border-box;
@@ -71,20 +68,24 @@ img, video {
 }
 
 .all * {
-  box-shadow: 0 0 0.1em var(--third);
-  border-radius: 100px;
   padding: 0.4em;
+  border-radius: 100px;
+  box-shadow: 0 0 0.1em var(--secondary);
+  transition: all 400ms ease-in-out;
 }
 
-.all *:hover {}
+.all *:hover {
+  color: var(--secondary);
+}
 
 .all {
   position: relative;
   max-width: 375px;
   margin: 1em;
   padding: 1em;
-  background: var(--secondary);
-  border-radius: 0.5em;
+  /* border: 1px solid var(--secondary); */
+  box-shadow: 0 0 0.1em var(--secondary);
+  border-radius: 1em;
 }
 
 .proj.show {
@@ -109,19 +110,22 @@ img, video {
   display: block;
 }
 
+.title {
+  color: var(--secondary);
+}
+
 #name {
-  color: var(--third);
   text-decoration: underline;
   cursor: crosshair;
 }
 
-#conrad {
+#cnrd {
   display: none;
   position: fixed;
   max-width: 375px;
 }
 
-#conrad .description {
+#cnrd .description {
   padding: 0.5em;
   color: var(--third);
   background: var(--secondary);
@@ -141,11 +145,11 @@ img, video {
 }
 
 .switch:hover {
-  background: var(--third);
+  background: var(--secondary);
 }
 
 .switch.active {
-  background: var(--third);
+  background: var(--secondary);
 }
 
 @media screen and (max-width: 450px) {
