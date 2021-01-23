@@ -71,7 +71,7 @@ img, video {
   padding: 0.4em;
   border-radius: 100px;
   box-shadow: 0 0 0.1em var(--secondary);
-  transition: all 400ms ease-in-out;
+  transition: color 400ms ease-in-out;
 }
 
 .all *:hover {
