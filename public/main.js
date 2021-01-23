@@ -1,7 +1,7 @@
 console.log(`%c:---)`, 'padding: 5px; background: blue; color: white;')
 
 const name = document.querySelector('#name')
-const conrad = document.querySelector('#conrad')
+const cnrd = document.querySelector('#cnrd')
 const projs = [].slice.call(document.querySelectorAll('.proj'))
 const switchh = document.querySelector('#switch')
 const project = new URLSearchParams(window.location.search).get('project')
@@ -34,17 +34,17 @@ switchh.addEventListener('click', (event) => {
 
 document.addEventListener('mousemove', (event) => {
   if (event.target.id === 'name') {
-    conrad.style.left = `${ event.clientX + 15 }px`
-    conrad.style.top = `${ event.clientY + 15 }px`
+    cnrd.style.left = `${ event.clientX + 15 }px`
+    cnrd.style.top = `${ event.clientY + 15 }px`
   }
 })
 
 name.addEventListener('mouseenter', (event) => {
-  conrad.style.display = 'block'
+  cnrd.style.display = 'block'
 })
 
 name.addEventListener('mouseleave', (event) => {
-  conrad.style.display = 'none'
+  cnrd.style.display = 'none'
 })
 
 projs.forEach((element) => {
