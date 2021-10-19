@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hi</title>
+</head>
+<body>
+  <button onclick="hi()">hi</button>
+  <script>
+    const tabs = [
+      'https://cnrd.computer',
+      'https://slides.cnrd.computer/automation-asymmetry/?slide=24',
+      'https://slides.cnrd.computer/turing-test/?slide=6',
+      'https://slides.cnrd.computer/turing-test/?slide=44',
+      'https://2007.cnrd.computer/',
+      'https://human-driven-condition.cnrd.computer/'
+    ]
+
+    function wait (time) {
+      return new Promise(resolve => setTimeout(() => resolve(), time))
+    }
+
+    function hi() {
+      tabs.map((url) => {
+        window.open(url, '_blank')
+        wait(200)
+      })
+      window.close()
+    }
+  </script>
+</body>
+</html>
