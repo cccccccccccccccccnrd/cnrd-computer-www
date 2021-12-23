@@ -1,13 +1,22 @@
 console.log(`%c:---)`, 'padding: 5px; background: blue; color: white;')
 
 const name = document.querySelector('#name')
-const cnrd = document.querySelector('#cnrd')
+const c = document.querySelector('#c')
+const cImg = document.querySelector('#c-img')
 const projs = [].slice.call(document.querySelectorAll('.proj'))
-const switchh = document.querySelector('#switch')
 const project = new URLSearchParams(window.location.search).get('project')
 
 if (project) {
   open(project)
+}
+
+function ccc (path) {
+  if (path) {
+    c.style.display = 'block'
+    cImg.src = `assets/${path}`
+  } else {
+    c.style.display = 'none'
+  }
 }
 
 function open (project) {
@@ -25,26 +34,19 @@ function open (project) {
   window.history.pushState({}, {}, '/')
 }
 
-switchh.addEventListener('click', (event) => {
-  switchh.classList.toggle('active')
-  projs.forEach((element) => {
-    element.classList.toggle('show')
-  })
-})
-
 document.addEventListener('mousemove', (event) => {
   if (event.target.id === 'name') {
-    cnrd.style.left = `${ event.clientX + 15 }px`
-    cnrd.style.top = `${ event.clientY + 15 }px`
+    c.style.left = `${ event.clientX + 15 }px`
+    c.style.top = `${ event.clientY + 15 }px`
   }
 })
 
 name.addEventListener('mouseenter', (event) => {
-  cnrd.style.display = 'block'
+  ccc('conrad.png')
 })
 
 name.addEventListener('mouseleave', (event) => {
-  cnrd.style.display = 'none'
+  ccc()
 })
 
 projs.forEach((element) => {
