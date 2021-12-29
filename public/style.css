@@ -32,6 +32,7 @@ body {
   color: var(--secondary);
   background: black;
   height: 100vh;
+  overflow: hidden;
 }
 
 p {
@@ -118,15 +119,12 @@ img, video {
 .left {
   display: flex;
   flex-flow: column nowrap;
-  max-height: 100%;
 }
 
 .left .up {
   flex: 1;
   overflow: scroll;
 }
-
-.left .down {}
 
 iframe {
   width: 100%;
@@ -196,6 +194,14 @@ iframe {
   .left .up, .left .down {
     max-width: none;
     margin: 0.5em;
+  }
+
+  .left .up {
+    flex: 0.6;
+  }
+
+  .left .down a {
+    font-size: 2em;
   }
 
   .left .down {
