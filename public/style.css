@@ -200,6 +200,10 @@ iframe {
     margin: 0.5em;
   }
 
+  .left .up {
+    max-height: 75vh;
+  }
+
   .left .down {
     margin: 0 0.5em 0.5em 0.5em;
   }
