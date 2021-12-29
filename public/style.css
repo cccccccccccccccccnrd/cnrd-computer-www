@@ -118,7 +118,7 @@ img, video {
 .left {
   display: flex;
   flex-flow: column nowrap;
-  max-height: 100vh;
+  max-height: 100%;
 }
 
 .left .up {
