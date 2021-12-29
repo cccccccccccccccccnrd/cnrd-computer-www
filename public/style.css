@@ -118,6 +118,7 @@ img, video {
 .left {
   display: flex;
   flex-flow: column nowrap;
+  max-height: 100vh;
 }
 
 .left .up {
@@ -191,17 +192,10 @@ iframe {
   body {
     font-size: 18px;
   }
-
-  .left {
-    max-width: none;
-  }
-
+  
   .left .up, .left .down {
+    max-width: none;
     margin: 0.5em;
-  }
-
-  .left .up {
-    max-height: 70vh;
   }
 
   .left .down {
