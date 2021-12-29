@@ -8,7 +8,28 @@ const projs = [].slice.call(document.querySelectorAll('.proj'))
 const project = new URLSearchParams(window.location.search).get('project')
 
 if (project) {
-  open(project)
+  const element = document.querySelector(`#${ project }`)
+  element.scrollIntoView()
+  window.history.pushState({}, {}, '/')
+  open(element)
+}
+
+function open (element) {
+  const url = element.getAttribute('data-url')
+  console.log(url)
+
+  if (element.classList.contains('show') || url === null) {
+    right.style.display = 'none'
+    frame.src = ''
+  } else {
+    right.style.display = 'block'
+    frame.src = url
+  }
+  
+  if (url) {
+    projs.forEach((e) => e !== element ? e.classList.remove('show') : console.log('cool'))
+    element.classList.toggle('show')
+  }
 }
 
 function ccc (path) {
@@ -22,20 +43,6 @@ function ccc (path) {
   } else {
     c.style.display = 'none'
   }
-}
-
-function open (project) {
-  const element = document.querySelector(`#${ project }`)
-
-  if (element) {
-    element.classList.toggle('show')
-  } else {
-    projs.forEach((element) => {
-      element.classList.toggle('show')
-    })
-  }
-  
-  window.history.pushState({}, {}, '/')
 }
 
 document.addEventListener('mousemove', (event) => {
@@ -53,21 +60,7 @@ name.addEventListener('mouseleave', (event) => {
 
 projs.forEach((element) => {
   element.addEventListener('click', function () {
-    const url = element.getAttribute('data-url')
-    console.log(url)
-
-    if (this.classList.contains('show') || url === null) {
-      right.style.display = 'none'
-      frame.src = ''
-    } else {
-      right.style.display = 'block'
-      frame.src = url
-    }
-    
-    if (url) {
-      projs.forEach((e) => e !== this ? e.classList.remove('show') : console.log('cool'))
-      this.classList.toggle('show')
-    }
+    open(this)
   })
 
   element.addEventListener('mouseenter', (event) => {
