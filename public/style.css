@@ -3,6 +3,17 @@
   background-color: rgba(0, 0, 255, 0.99);
 }
 
+::-webkit-scrollbar {
+  width: 2px;
+  background: unset;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 1);
+  border-radius: 20px;
+  box-shadow: 0 0 5em blue;
+}
+
 body {
   --primary: black;
   --secondary: white;
@@ -123,7 +134,7 @@ img, video {
 
 .left .up {
   flex: 1;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 iframe {
