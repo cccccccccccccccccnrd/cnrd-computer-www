@@ -1,3 +1,11 @@
+@font-face {
+  font-display: swap;
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400;
+  src: url('assets/g.woff2') format('woff2');
+}
+
 ::selection {
   color: white;
   background-color: rgba(0, 0, 255, 0.99);
@@ -18,7 +26,7 @@ body {
   --primary: black;
   --secondary: white;
   --third: black;
-  --font-family: serif;
+  --font-family: 'EB Garamond', 'et-book', serif;
   --font-size: 20px;
 }
 
@@ -37,7 +45,7 @@ body {
   width: 100%;
   font-family: var(--font-family);
   font-size: var(--font-size);
-  line-height: 1;
+  line-height: 1.05;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--secondary);
@@ -75,6 +83,22 @@ img, video {
   width: 100%;
 }
 
+h2 {
+  display: table;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.8em;
+  font-weight: 400;
+}
+
+h3 {
+  display: table;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.666em;
+  font-weight: 400;
+}
+
 .flex {
   display: flex;
 }
@@ -86,11 +110,15 @@ img, video {
 .year {
   display: table;
   margin: 1em 0 0 0;
-  font-size: 2em;
+  font-size: 1em;
 }
 
 .proj {
-  margin: 0.5em 0em;
+  margin: 1.5em 0;
+}
+
+.proj:last-of-type {
+  margin: 0;
 }
 
 .proj[data-url] {
@@ -100,7 +128,7 @@ img, video {
 .left *:not(img):not(video) {
   padding: 0.2em;
   border-radius: 100px;
-  box-shadow: 0 0 0.1em var(--secondary);
+  box-shadow: 0 0 0.5em rgba(255, 255, 255, 0.0888), 0 0 100em rgba(0, 0, 255, 0.02);
 }
 
 .left .up, .left .down, .right {
@@ -116,7 +144,39 @@ img, video {
 }
 
 .left .down {
+  display: flex;
+  justify-content: space-between;
   margin: 0 0 0.5em 0.5em;
+  overflow: hidden;
+}
+
+.down ul {
+  height: 100px;
+  overflow: hidden;
+  overflow-y: scroll;
+  border-radius: 0 !important;
+}
+
+.down a:hover {
+  border-bottom: 20px solid blue;
+}
+
+.other {
+  display: flex;
+}
+
+.other h3 {
+  width: 100%;
+  text-align: center;
+}
+
+.other ul {
+  max-width: 120px;
+  font-size: 0.7em;
+}
+
+.other div:last-of-type ul {
+  max-width: 120px;
 }
 
 .right {
@@ -144,25 +204,14 @@ iframe {
   overflow: hidden;
 }
 
-.proj h2 {
-  display: table;
-  margin: 0;
-  font-size: 0.8em;
-  /* text-transform: uppercase; */
-  /* text-align: center; */
-  font-weight: 400;
-  font-family: 'Arial';
-}
-
-.proj > * {
-  /* display: none; */
-  margin: 0.25em 0;
-}
-
 .proj.show, .proj.show * {
   /* color: black;
   background: white; */
   box-shadow: 0 0 5em blue;
+}
+
+.proj[data-url]:hover {
+  background: blue;
 }
 
 .title {
@@ -207,16 +256,12 @@ iframe {
     margin: 0.5em;
   }
 
-  .left .up {
-    flex: 0.6;
-  }
-
-  .left .down a {
-    font-size: 2em;
-  }
-
   .left .down {
     margin: 0 0.5em 0.5em 0.5em;
+  }
+
+  .down .other ul {
+    height: 80px;
   }
 
   #right {
