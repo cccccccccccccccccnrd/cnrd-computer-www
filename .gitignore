@@ -2,6 +2,7 @@
 node_modules
 dist
 public/works
+g.woff2
 
 # local env files
 .env.local

@@ -8,26 +8,28 @@ const projs = [].slice.call(document.querySelectorAll('.proj'))
 const project = new URLSearchParams(window.location.search).get('project')
 
 if (project) {
-  const element = document.querySelector(`#${ project }`)
+  const element = document.querySelector(`#${project}`)
   element.scrollIntoView()
-  window.history.pushState({}, {}, '/')
   open(element)
 }
 
 function open (element) {
   const url = element.getAttribute('data-url')
-  console.log(url)
 
   if (element.classList.contains('show') || url === null) {
     right.style.display = 'none'
     frame.src = ''
+    window.history.pushState({}, {}, '/')
   } else {
     right.style.display = 'block'
     frame.src = url
+    window.history.pushState({}, {}, `?project=${element.id}`)
   }
-  
+
   if (url) {
-    projs.forEach((e) => e !== element ? e.classList.remove('show') : console.log('cool'))
+    projs.forEach(e =>
+      e !== element ? e.classList.remove('show') : console.log('cool')
+    )
     element.classList.toggle('show')
   }
 }
@@ -45,30 +47,30 @@ function ccc (path) {
   }
 }
 
-document.addEventListener('mousemove', (event) => {
-  c.style.left = `${ event.clientX + 15 }px`
-  c.style.top = `${ event.clientY + 15 }px`
+document.addEventListener('mousemove', event => {
+  c.style.left = `${event.clientX + 15}px`
+  c.style.top = `${event.clientY + 15}px`
 })
 
-name.addEventListener('mouseenter', (event) => {
+name.addEventListener('mouseenter', event => {
   ccc('conrad.png')
 })
 
-name.addEventListener('mouseleave', (event) => {
+name.addEventListener('mouseleave', event => {
   ccc()
 })
 
-projs.forEach((element) => {
+projs.forEach(element => {
   element.addEventListener('click', function () {
     open(this)
   })
 
-  element.addEventListener('mouseenter', (event) => {
+  element.addEventListener('mouseenter', event => {
     const path = element.getAttribute('data-visual')
     ccc(path)
   })
-  
-  element.addEventListener('mouseleave', (event) => {
+
+  element.addEventListener('mouseleave', event => {
     ccc()
   })
 })
