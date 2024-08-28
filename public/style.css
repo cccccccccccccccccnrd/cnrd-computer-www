@@ -147,11 +147,11 @@ h3 {
   display: flex;
   justify-content: space-between;
   margin: 0 0 0.5em 0.5em;
+  background: linear-gradient(transparent, blue);
   overflow: hidden;
 }
 
 .down ul {
-  height: 100px;
   overflow: hidden;
   overflow-y: scroll;
   border-radius: 0 !important;
@@ -171,6 +171,7 @@ h3 {
 }
 
 .other ul {
+  max-height: 100px;
   max-width: 120px;
   font-size: 0.7em;
 }
