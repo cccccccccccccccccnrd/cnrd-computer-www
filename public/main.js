@@ -1,6 +1,6 @@
 console.log(`%c:---)`, 'padding: 5px; background: blue; color: white;')
 
-const name = document.querySelector('#name')
+const bio = document.querySelector('#bio')
 const c = document.querySelector('#c')
 const frame = document.querySelector('#frame')
 const right = document.querySelector('#right')
@@ -13,7 +13,7 @@ if (project) {
   open(element)
 }
 
-function open (element) {
+function open(element) {
   const url = element.getAttribute('data-url')
 
   if (element.classList.contains('show') || url === null) {
@@ -27,14 +27,12 @@ function open (element) {
   }
 
   if (url) {
-    projs.forEach(e =>
-      e !== element ? e.classList.remove('show') : console.log('cool')
-    )
+    projs.forEach((e) => (e !== element ? e.classList.remove('show') : console.log('cool')))
     element.classList.toggle('show')
   }
 }
 
-function ccc (path) {
+function ccc(path) {
   if (path) {
     if (path.endsWith('.mp4')) {
       c.innerHTML = `<video src="assets/${path}" muted loop autoplay></video>`
@@ -47,30 +45,30 @@ function ccc (path) {
   }
 }
 
-document.addEventListener('mousemove', event => {
+document.addEventListener('mousemove', (event) => {
   c.style.left = `${event.clientX + 15}px`
   c.style.top = `${event.clientY + 15}px`
 })
 
-name.addEventListener('mouseenter', event => {
-  ccc('conrad.png')
+bio.addEventListener('mouseenter', (event) => {
+  ccc('conrad.jpg')
 })
 
-name.addEventListener('mouseleave', event => {
+bio.addEventListener('mouseleave', (event) => {
   ccc()
 })
 
-projs.forEach(element => {
+projs.forEach((element) => {
   element.addEventListener('click', function () {
     open(this)
   })
 
-  element.addEventListener('mouseenter', event => {
+  element.addEventListener('mouseenter', (event) => {
     const path = element.getAttribute('data-visual')
     ccc(path)
   })
 
-  element.addEventListener('mouseleave', event => {
+  element.addEventListener('mouseleave', (event) => {
     ccc()
   })
 })
