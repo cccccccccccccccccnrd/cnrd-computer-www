@@ -45,7 +45,7 @@ body {
   width: 100%;
   font-family: var(--font-family);
   font-size: var(--font-size);
-  line-height: 1.05;
+  line-height: 1.15;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--secondary);
@@ -215,9 +215,8 @@ iframe {
   background: blue;
 }
 
-.title {
-  margin: 0 0 0 0;
-  color: var(--secondary);
+#bio {
+  padding: 0.4em;
 }
 
 #c {
