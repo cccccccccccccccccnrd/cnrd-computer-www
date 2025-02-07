@@ -135,7 +135,7 @@ h3 {
 .left *:not(img):not(video) {
   padding: 0.2em;
   border-radius: 100px;
-  box-shadow: 0 0 0.5em rgba(255, 255, 255, 0.0888), 0 0 100em rgba(0, 0, 255, 0.02);
+  box-shadow: 0 0 0.5em rgba(255, 255, 255, 0.0888), 0 0 100em rgba(0, 0, 255, 0.15);
 }
 
 .left .up, .left .down, .right {
@@ -146,7 +146,7 @@ h3 {
 }
 
 .left .up, .left .down {
-  max-width: 375px;
+  max-width: 400px;
   margin: 0.5em 0 0.5em 0.5em;
 }
 
@@ -156,15 +156,29 @@ h3 {
   margin: 0 0 0.5em 0.5em;
   background: linear-gradient(transparent, blue);
   overflow: hidden;
+  padding: 0 !important;
+}
+
+.left .down > * {
+  padding: 0 !important;
+}
+
+.left .down div {
+  padding: 0.6em 0.6em 0 0 !important;
+}
+
+.left .down div:first-of-type {
+  padding: 0.6em !important;
 }
 
 .down ul {
   max-height: 7em;
-  max-width: 8em;
+  /* max-width: 8.5em; */
   font-size: 0.8em;
   overflow: hidden;
   overflow-y: scroll;
   border-radius: 0 !important;
+  padding: 0 !important;
 }
 
 .down a:hover {
