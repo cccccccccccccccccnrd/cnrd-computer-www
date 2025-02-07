@@ -141,7 +141,7 @@ h3 {
 .left .up, .left .down, .right {
   margin: 0.5em;
   box-shadow: 0 0 0.1em var(--secondary);
-  border-radius: 0.75em;
+  border-radius: 1em;
   overflow: hidden;
 }
 
@@ -159,6 +159,9 @@ h3 {
 }
 
 .down ul {
+  max-height: 7em;
+  max-width: 8em;
+  font-size: 0.8em;
   overflow: hidden;
   overflow-y: scroll;
   border-radius: 0 !important;
@@ -168,23 +171,9 @@ h3 {
   border-bottom: 20px solid blue;
 }
 
-.other {
-  display: flex;
-}
-
-.other h3 {
+.down h3 {
   width: 100%;
   text-align: center;
-}
-
-.other ul {
-  max-height: 100px;
-  max-width: 120px;
-  font-size: 0.7em;
-}
-
-.other div:last-of-type ul {
-  max-width: 120px;
 }
 
 .right {
