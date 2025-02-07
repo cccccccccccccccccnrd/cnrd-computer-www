@@ -3,6 +3,7 @@ node_modules
 dist
 public/works
 g.woff2
+a.ttf
 
 # local env files
 .env.local
