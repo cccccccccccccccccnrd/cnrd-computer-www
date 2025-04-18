@@ -51,7 +51,7 @@ document.addEventListener('mousemove', (event) => {
 })
 
 bio.addEventListener('mouseenter', (event) => {
-  ccc('conrad.jpg')
+  ccc('conrad.png')
 })
 
 bio.addEventListener('mouseleave', (event) => {
