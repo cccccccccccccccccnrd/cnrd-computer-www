@@ -37,7 +37,8 @@ body {
   scrollbar-width: none;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -61,7 +62,8 @@ p {
   margin: 0;
 }
 
-a, a:visited {
+a,
+a:visited {
   color: var(--secondary);
   text-decoration: none;
   border-bottom: 2px solid blue;
@@ -81,7 +83,8 @@ li {
   list-style-type: none;
 }
 
-img, video {
+img,
+video {
   max-width: 400px;
   width: 100%;
 }
@@ -99,6 +102,10 @@ h3 {
   font-family: 'Arial', sans-serif;
   font-size: 0.666em;
   font-weight: 400;
+}
+
+.a {
+  font-family: 'Arial', sans-serif;
 }
 
 .flex {
@@ -133,14 +140,17 @@ h3 {
   box-shadow: 0 0 0.5em rgba(255, 255, 255, 0.0888), 0 0 100em rgba(0, 0, 255, 0.15);
 }
 
-.left .up, .left .down, .right {
+.left .up,
+.left .down,
+.right {
   margin: 0.5em;
   box-shadow: 0 0 0.1em var(--secondary);
   border-radius: 1em;
   overflow: hidden;
 }
 
-.left .up, .left .down {
+.left .up,
+.left .down {
   max-width: 400px;
   margin: 0.5em 0 0.5em 0.5em;
 }
@@ -210,7 +220,8 @@ iframe {
   overflow: hidden;
 }
 
-.proj.show, .proj.show * {
+.proj.show,
+.proj.show * {
   /* color: black;
   background: white; */
   box-shadow: 0 0 5em blue;
@@ -255,8 +266,9 @@ iframe {
   body {
     font-size: 18px;
   }
-  
-  .left .up, .left .down {
+
+  .left .up,
+  .left .down {
     max-width: calc(100vw - 1em);
     margin: 0.5em;
   }
