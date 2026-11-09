@@ -124,6 +124,7 @@ h3 {
 
 .proj {
   margin: 1.5em 0;
+  scroll-margin-top: 1em; /* ?project= deep links: keep the title off the top edge */
 }
 
 .proj:last-of-type {
