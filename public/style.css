@@ -262,6 +262,27 @@ iframe {
   background: var(--secondary);
 }
 
+/* desktop: .down widens over the preview on hover without reflowing the layout */
+@media screen and (min-width: 451px) {
+  .left {
+    flex: 0 0 auto;
+    width: calc(400px + 0.5em);
+  }
+
+  .left .down {
+    position: relative;
+    z-index: 10;
+    width: 400px;
+    max-width: none;
+    transition: width 200ms ease-in-out;
+  }
+
+  .left .down:hover {
+    width: min(600px, calc(100vw - 1em));
+    background: linear-gradient(black, blue);
+  }
+}
+
 @media screen and (max-width: 450px) {
   body {
     font-size: 18px;
