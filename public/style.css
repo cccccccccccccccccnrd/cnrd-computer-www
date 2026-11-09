@@ -186,6 +186,26 @@ h3 {
   padding: 0 !important;
 }
 
+/* Exhibited and Writings: one line per item, cut at the column edge with a
+   fade instead of wrapping. Contact keeps its natural width */
+.left .down > div:first-of-type {
+  flex: 0 0 auto;
+}
+
+.left .down > div:not(:first-of-type) {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.left .down > div:not(:first-of-type) li {
+  white-space: nowrap;
+}
+
+.left .down > div:not(:first-of-type) ul {
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 2.5em), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - 2.5em), transparent);
+}
+
 .down a:hover {
   border-bottom: 20px solid blue;
 }
