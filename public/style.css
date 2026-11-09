@@ -173,7 +173,7 @@ h3 {
 }
 
 .left .down div:first-of-type {
-  padding: 0.6em !important;
+  padding: 0.6em 0.6em 0.2em 0.6em !important;
 }
 
 .down ul {
