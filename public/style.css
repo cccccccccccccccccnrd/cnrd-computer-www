@@ -177,7 +177,7 @@ h3 {
 }
 
 .down ul {
-  max-height: 7em;
+  max-height: 7.75em; /* 5 items: 5 × (1.15em line + 0.4em padding) */
   /* max-width: 8.5em; */
   font-size: 0.8em;
   overflow: hidden;
@@ -301,7 +301,7 @@ iframe {
 
   .left .down ul {
     max-height: none;
-    height: 7em;
+    height: 7.75em; /* 5 items */
   }
 
   .left .down.open,
@@ -314,7 +314,7 @@ iframe {
   }
 
   .left .down.open ul {
-    height: calc(var(--down-fit, 7em) * 1.25);
+    height: calc(var(--down-fit, 7.75em) * 1.25);
     max-height: 70vh; /* safety cap: only scrolls if the lists ever get this long */
   }
 
