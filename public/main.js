@@ -72,3 +72,33 @@ projs.forEach((element) => {
     ccc()
   })
 })
+
+// footer lists: measure the tallest list so the CSS hover state can size to it
+const down = document.querySelector('.left .down')
+
+function measureDown() {
+  // lay the lists out at the hover width with natural height, read, restore (no paint in between)
+  down.classList.add('measure')
+  const lists = [].slice.call(down.querySelectorAll('ul'))
+  const fit = Math.max(...lists.map((ul) => ul.scrollHeight))
+  down.classList.remove('measure')
+  down.style.setProperty('--down-fit', `${fit}px`)
+}
+
+measureDown()
+window.addEventListener('resize', measureDown)
+document.fonts.ready.then(measureDown)
+
+// open/close the footer instantly (no animation: the 100em glow shadows make
+// any animated resize repaint too slowly)
+function setDownOpen(open) {
+  down.classList.toggle('open', open)
+}
+
+down.addEventListener('mouseenter', () => setDownOpen(true))
+down.addEventListener('mouseleave', () => setDownOpen(false))
+// moving straight onto the preview iframe (or out of the window) may not fire
+// mouseleave; mouseout does, with a relatedTarget outside .down (or null)
+down.addEventListener('mouseout', (event) => {
+  if (!down.contains(event.relatedTarget)) setDownOpen(false)
+})

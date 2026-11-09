@@ -262,7 +262,10 @@ iframe {
   background: var(--secondary);
 }
 
-/* desktop: .down widens over the preview on hover without reflowing the layout */
+/* desktop: .down.open (toggled on hover by main.js) grows right (overlaying
+   the preview) and up to 125% of the tallest list (pushing .up, flex: 1, to
+   shrink). Opens/closes instantly, no animation (the glow shadows make
+   animated resizing lag). --down-fit is measured in main.js */
 @media screen and (min-width: 451px) {
   .left {
     flex: 0 0 auto;
@@ -274,13 +277,36 @@ iframe {
     z-index: 10;
     width: 400px;
     max-width: none;
-    transition: width 200ms ease-in-out;
   }
 
-  .left .down:hover {
+  .left .down ul {
+    max-height: none;
+    height: 7em;
+  }
+
+  .left .down.open,
+  .left .down.measure {
     width: min(600px, calc(100vw - 1em));
+  }
+
+  .left .down.open {
     background: linear-gradient(black, blue);
   }
+
+  .left .down.open ul {
+    height: calc(var(--down-fit, 7em) * 1.25);
+    max-height: 70vh; /* safety cap: only scrolls if the lists ever get this long */
+  }
+
+  /* used by main.js for one synchronous measurement at the open width */
+  .left .down.measure ul {
+    height: auto;
+  }
+}
+
+/* hover preview image stays above everything, including the expanded .down */
+#c {
+  z-index: 100;
 }
 
 @media screen and (max-width: 450px) {
