@@ -1,0 +1,9 @@
+.git
+node_modules
+.DS_Store
+npm-debug.log*
+Dockerfile
+compose.yaml
+.dockerignore
+# public/works/*.pdf and public/assets/{g.woff2,a.ttf} are gitignored but must
+# stay in the build context: build on the server checkout where they exist.

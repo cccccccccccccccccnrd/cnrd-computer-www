@@ -25,14 +25,19 @@ wss.on('connection', function connection(ws) {
 
   ws.send(JSON.stringify(state))
 
-  ws.on('message', function incoming(data) {
+  ws.on('message', function incoming(raw) {
+    const data = raw.toString()
 
-    state = JSON.parse(data)
+    try {
+      state = JSON.parse(data)
+    } catch (e) {
+      return
+    }
 
     wss.clients.forEach(function each(client) {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
         client.send(data)
       }
-    }) 
+    })
   }) 
 })

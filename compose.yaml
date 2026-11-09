@@ -1,0 +1,10 @@
+services:
+  www:
+    build: .
+    image: cnrd-computer-www
+    init: true
+    restart: unless-stopped
+    ports:
+      # nginx proxies cnrd.computer -> 127.0.0.1:2000
+      - "127.0.0.1:2000:2000"
+      - "127.0.0.1:2001:2001"
