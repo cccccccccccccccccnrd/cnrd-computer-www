@@ -247,10 +247,7 @@ blog.addEventListener('click', (event) => {
   if (blog.classList.contains('single') || event.target.closest('a')) return
   const post = event.target.closest('.post')
   if (!post || (post.classList.contains('gallery') && event.target.closest('.slides'))) return
-  const picture = post.classList.contains('stack') && event.target.closest('.slides > *')
-  go(permalink(post))
-  // a stack's page: scroll to the picture that was clicked
-  if (picture) picture.scrollIntoView()
+  go(permalink(post)) // opens scrolled to the top (routeBlog)
 })
 
 // picture/video posts and collections. Feed: single items in full, a collection
