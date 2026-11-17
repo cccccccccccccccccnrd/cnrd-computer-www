@@ -319,27 +319,31 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
   }
 
   // touch (phones, tablets): the picture follows the finger and the next or
-  // previous one slides in beside it; releasing past a fifth of the width moves
-  // on, otherwise it springs back. Two fingers pinch-zoom around the pinch
-  // point, one finger then moves the zoomed picture. Taps do nothing (the
-  // mouse keeps click-to-zoom)
+  // previous one slides in beside it. Letting go after an eighth of the width,
+  // or after a quick flick, moves on; otherwise it springs back. A new swipe
+  // during the animation finishes it at once. Two fingers pinch-zoom around the
+  // pinch point, one finger then moves the zoomed picture; a double tap zooms
+  // in on the tapped spot and out again. Single taps do nothing (the mouse
+  // keeps click-to-zoom)
   const view = { scale: 1, x: 0, y: 0 }
-  let touch = null // one finger: { x, y, axis, dx, startX, startY }
+  let touch = null // one finger: { x, y, time, dx, moved, startX, startY, track }
   let pinch = null // two fingers: { dist, scale, mid, x, y }
+  let pinched = false // this touch sequence had two fingers: no taps from it
   let lastTouch = 0
-  let sliding = false
+  let lastTap = null // { time, x, y }
+  let sliding = null // the running slide animation's finish function
 
   const distance = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
   const middle = (a, b) => ({ x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 })
 
-  function applyView() {
+  function applyView(animate) {
     const item = items[index]
     // keep the zoomed picture covering its own box: no panning past its edges
     const maxX = (item.clientWidth * (view.scale - 1)) / 2
     const maxY = (item.clientHeight * (view.scale - 1)) / 2
     view.x = Math.min(Math.max(view.x, -maxX), maxX)
     view.y = Math.min(Math.max(view.y, -maxY), maxY)
-    item.style.transition = 'none'
+    item.style.transition = animate ? 'transform 220ms ease-out' : 'none'
     item.style.transformOrigin = '50% 50%'
     item.style.transform = view.scale === 1 ? '' : `translate(${view.x}px, ${view.y}px) scale(${view.scale})`
   }
@@ -355,12 +359,28 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
     return Math.min(8, Math.max(3, natural / (window.devicePixelRatio || 1) / (item.clientWidth || 1)))
   }
 
+  // double tap: zoom in so the tapped spot stays under the finger, or back out
+  function doubleTap(x, y) {
+    if (view.scale > 1) {
+      resetView()
+    } else {
+      const item = items[index]
+      const box = item.getBoundingClientRect()
+      const scale = Math.min(2.5, maxScale())
+      // translate(t) scale(s) around the centre c moves point p to c + t + s(p - c)
+      view.scale = scale
+      view.x = (x - (box.left + box.width / 2)) * (1 - scale)
+      view.y = (y - (box.top + box.height / 2)) * (1 - scale)
+    }
+    applyView(true)
+  }
+
   // the neighbour on the side we're dragging towards, placed one width away
   function neighbour(dx) {
     return items[(index + (dx < 0 ? 1 : -1) + items.length) % items.length]
   }
 
-  function place(dx, animate) {
+  function place(dx, duration) {
     const width = slides.clientWidth
     const current = items[index]
     const other = items.length > 1 && dx !== 0 ? neighbour(dx) : null
@@ -370,7 +390,7 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
         item.style.transform = item.style.transition = ''
       }
     })
-    const transition = animate ? 'transform 250ms ease-out' : 'none'
+    const transition = duration ? `transform ${duration}ms cubic-bezier(0.2, 0.7, 0.3, 1)` : 'none'
     current.style.transition = transition
     current.style.transform = dx ? `translateX(${dx}px)` : ''
     if (other) {
@@ -380,40 +400,62 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
     }
   }
 
-  function release(dx) {
+  // speed of the finger over its last ~100ms of movement, in px per ms
+  // (negative = leftwards); 0 if it rested before lifting
+  function velocity(track) {
+    const last = track[track.length - 1]
+    if (Date.now() - last.t > 100) return 0
+    const then = track.find((p) => last.t - p.t <= 100) || track[0]
+    return last.t > then.t ? (last.x - then.x) / (last.t - then.t) : 0
+  }
+
+  function release(dx, speed) {
     const width = slides.clientWidth
-    const go = items.length > 1 && Math.abs(dx) > width / 5
-    sliding = true
-    place(go ? (dx < 0 ? -width : width) : 0, true)
+    const flick = Math.abs(speed) > 0.25 && Math.abs(dx) > 15 && Math.sign(speed) === Math.sign(dx)
+    const go = items.length > 1 && dx !== 0 && (Math.abs(dx) > width / 8 || flick)
+    const target = go ? (dx < 0 ? -width : width) : 0
+    // the faster the finger, the quicker the rest of the way
+    const duration = Math.round(Math.min(320, Math.max(140, Math.abs(target - dx) / Math.max(Math.abs(speed), 1.2))))
+    place(target, duration)
     // keep the neighbour in view while the current one springs back
-    if (!go && dx) {
+    if (!go && dx && items.length > 1) {
       const other = neighbour(dx)
-      other.style.transition = 'transform 250ms ease-out'
+      other.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.7, 0.3, 1)`
       other.style.transform = `translateX(${dx < 0 ? width : -width}px)`
     }
-    setTimeout(() => {
+    const finish = () => {
+      if (sliding !== finish) return
+      clearTimeout(timer)
+      sliding = null
       items.forEach((item) => {
         item.classList.remove('peek')
         item.style.transform = item.style.transition = ''
       })
-      sliding = false
       if (go) show(index + (dx < 0 ? 1 : -1))
-    }, 260)
+    }
+    const timer = setTimeout(finish, duration + 20)
+    sliding = finish
+  }
+
+  function startTouch(t) {
+    touch = { x: t.clientX, y: t.clientY, time: Date.now(), dx: 0, moved: false, startX: view.x, startY: view.y, track: [{ x: t.clientX, t: Date.now() }] }
   }
 
   slides.addEventListener(
     'touchstart',
     (event) => {
-      if (!active() || sliding) return
+      if (!active()) return
+      if (sliding) sliding() // a new swipe during the animation: finish it now
       lastTouch = Date.now()
       if (event.touches.length === 2) {
-        if (touch && touch.axis === 'x') place(0, false) // a slide in progress becomes a pinch
+        if (touch && touch.moved) place(0, 0) // a slide in progress becomes a pinch
         touch = null
+        pinched = true
         const [a, b] = event.touches
         pinch = { dist: distance(a, b), scale: view.scale, mid: middle(a, b), x: view.x, y: view.y }
       } else if (event.touches.length === 1 && !pinch) {
-        const t = event.touches[0]
-        touch = { x: t.clientX, y: t.clientY, axis: null, dx: 0, startX: view.x, startY: view.y }
+        pinched = false
+        startTouch(event.touches[0])
       }
     },
     { passive: true }
@@ -422,9 +464,9 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
   slides.addEventListener(
     'touchmove',
     (event) => {
-      if (!active() || sliding) return
+      if (!active()) return
+      event.preventDefault()
       if (pinch && event.touches.length === 2) {
-        event.preventDefault()
         const [a, b] = event.touches
         const mid = middle(a, b)
         view.scale = Math.min(Math.max((pinch.scale * distance(a, b)) / pinch.dist, 1), maxScale())
@@ -437,20 +479,19 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
       const t = event.touches[0]
       const dx = t.clientX - touch.x
       const dy = t.clientY - touch.y
+      if (Math.hypot(dx, dy) > 6) touch.moved = true
+      touch.track.push({ x: t.clientX, t: Date.now() })
+      if (touch.track.length > 20) touch.track.shift()
       if (view.scale > 1) {
         // zoomed: one finger moves the picture
-        event.preventDefault()
         view.x = touch.startX + dx
         view.y = touch.startY + dy
         applyView()
         return
       }
-      if (!touch.axis && Math.hypot(dx, dy) > 8) touch.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
-      if (touch.axis === 'x') {
-        event.preventDefault()
-        touch.dx = dx
-        place(dx, false)
-      }
+      // any one-finger drag slides sideways; with only one picture it just gives a little
+      touch.dx = items.length > 1 ? dx : dx / 3
+      if (touch.moved) place(touch.dx, 0)
     },
     { passive: false }
   )
@@ -462,16 +503,26 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
       pinch = null
       if (view.scale <= 1.02) {
         resetView()
-        applyView()
+        applyView(true)
       }
       // a finger still down continues as a one-finger move from here
-      if (event.touches.length === 1) {
-        const t = event.touches[0]
-        touch = { x: t.clientX, y: t.clientY, axis: null, dx: 0, startX: view.x, startY: view.y }
-      }
+      if (event.touches.length === 1) startTouch(event.touches[0])
       return
     }
-    if (touch && touch.axis === 'x' && view.scale === 1) release(touch.dx)
+    if (!touch) return
+    const t = event.changedTouches[0]
+    if (!touch.moved && !pinched && Date.now() - touch.time < 300) {
+      // a tap: two within 300ms and 30px are a double tap
+      const now = Date.now()
+      if (lastTap && now - lastTap.time < 300 && Math.hypot(t.clientX - lastTap.x, t.clientY - lastTap.y) < 30) {
+        lastTap = null
+        doubleTap(t.clientX, t.clientY)
+      } else {
+        lastTap = { time: now, x: t.clientX, y: t.clientY }
+      }
+    } else if (touch.moved && view.scale === 1) {
+      release(touch.dx, velocity(touch.track))
+    }
     if (event.touches.length === 0) touch = null
   }
 
