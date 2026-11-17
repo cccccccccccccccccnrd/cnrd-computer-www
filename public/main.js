@@ -6,8 +6,193 @@ const frame = document.querySelector('#frame')
 const right = document.querySelector('#right')
 const projs = [].slice.call(document.querySelectorAll('.proj'))
 const project = new URLSearchParams(window.location.search).get('project')
+const blogButton = document.querySelector('#blog-button')
 
-if (project) {
+// blog mode: left column collapses to 40px (--blog-left in style.css), #right shows #blog instead of the iframe
+function setBlog(on) {
+  document.body.classList.toggle('blog', on)
+  if (on) {
+    projs.forEach((e) => e.classList.remove('show'))
+    frame.src = ''
+    right.style.display = 'block'
+  } else {
+    right.style.display = 'none'
+  }
+}
+
+// blog button: home -> feed, feed -> home, single post -> feed
+blogButton.addEventListener('click', (event) => {
+  event.preventDefault()
+  const path = blogPath()
+  go(path && !path.post ? '/' : '/blog')
+})
+
+// /blog is the feed (600px column); /blog/<post-id> is that post on its own,
+// a picture post as a gallery filling the panel
+const blog = document.querySelector('#blog')
+
+// each post has a unix time (data-time, from build-blog.js). The permalink is
+// /blog/<id> for posts with an id (folders), else /blog/<time>; the label is
+// "DD.MM.YYYY, <time>" unless the post has its own caption
+const posts = [].slice.call(blog.querySelectorAll('.post'))
+
+function permalink(post) {
+  return `/blog/${post.id || post.dataset.time}`
+}
+
+posts.forEach((post) => {
+  const label = [post.dataset.date, post.dataset.time].filter(Boolean).join(', ')
+  const caption = post.querySelector('.caption')
+  if (caption) {
+    caption.href = permalink(post)
+    if (!caption.textContent.trim()) caption.textContent = label
+  } else if (post.classList.contains('text')) {
+    post.insertAdjacentHTML('afterbegin', `<small class="label"><a href="${permalink(post)}">${label}</a></small>`)
+  }
+})
+
+function findPost(key) {
+  return posts.find((p) => p.id === key) || posts.find((p) => p.dataset.time === key) || null
+}
+
+function blogPath() {
+  const match = window.location.pathname.match(/^\/blog(?:\/([^/]+))?\/?$/)
+  return match ? { post: match[1] } : null
+}
+
+function routeBlog() {
+  const path = blogPath()
+  setBlog(Boolean(path))
+  const post = path && path.post ? findPost(decodeURIComponent(path.post)) : null
+  blog.classList.toggle('single', Boolean(post))
+  posts.forEach((p) => p.classList.toggle('active', p === post))
+  blog.scrollTop = 0
+  galleries.forEach((g) => g.reset())
+  return Boolean(path)
+}
+
+function go(url) {
+  window.history.pushState({}, '', url)
+  routeBlog()
+}
+
+window.addEventListener('popstate', routeBlog)
+
+// permalinks inside the blog: no reload
+blog.addEventListener('click', (event) => {
+  const link = event.target.closest('a[href^="/blog"]')
+  if (!link) return
+  event.preventDefault()
+  go(link.getAttribute('href'))
+})
+
+// picture/video posts and collections. Feed: single items in full, a collection
+// as its cover; a click opens the post (a collection at picture 1). Own page: one item at a time filling the panel; a click
+// in the middle (--blog-width) zooms in (it follows the mouse), left/right of it
+// steps back/forward, so do the arrow keys
+// (single pictures/videos, .single-item, are just shown: no caption, no click)
+const galleries = [].slice.call(document.querySelectorAll('.post.collection')).map((post) => {
+  const slides = post.querySelector('.slides')
+  const items = [].slice.call(slides.children)
+  const count = post.querySelector('.count')
+  let index = 0
+  let start = 0
+
+  function active() {
+    return post.classList.contains('active')
+  }
+
+  function show(n) {
+    zoom(false)
+    index = (n + items.length) % items.length
+    items.forEach((item, k) => item.classList.toggle('on', k === index))
+    if (active()) count.textContent = items.length > 1 ? `${index + 1}/${items.length}` : ''
+    else count.textContent = post.classList.contains('collection') ? `${items.length} photos` : ''
+    // preload the neighbours
+    ;[index + 1, index - 1].forEach((k) => {
+      const item = items[(k + items.length) % items.length]
+      if (item.tagName === 'IMG') item.loading = 'eager'
+    })
+  }
+
+  // zoom: scale the item up to its full resolution (at least 2x), the
+  // transform origin follows the mouse so moving pans across it
+  function zoom(on, event) {
+    const item = items[index]
+    slides.classList.toggle('zoomed', on)
+    if (!on || !item) {
+      if (item) item.style.transform = item.style.transformOrigin = ''
+      return
+    }
+    const natural = item.naturalWidth || item.videoWidth || 0
+    const scale = Math.max(2, natural / (window.devicePixelRatio || 1) / item.clientWidth)
+    item.style.transform = `scale(${scale})`
+    pan(event)
+  }
+
+  function pan(event) {
+    if (!event || !slides.classList.contains('zoomed')) return
+    // the mouse position across the whole panel maps to the whole item
+    const box = slides.getBoundingClientRect()
+    const x = Math.min(Math.max((event.clientX - box.left) / box.width, 0), 1) * 100
+    const y = Math.min(Math.max((event.clientY - box.top) / box.height, 0), 1) * 100
+    items[index].style.transformOrigin = `${x}% ${y}%`
+  }
+
+  // -1 left of the middle column, 0 inside it, 1 right of it
+  function zone(event) {
+    const box = slides.getBoundingClientRect()
+    const half = parseFloat(getComputedStyle(document.body).getPropertyValue('--blog-width')) / 2 || 220
+    const offset = event.clientX - (box.left + box.width / 2)
+    return Math.abs(offset) <= half ? 0 : Math.sign(offset)
+  }
+
+  slides.addEventListener('click', (event) => {
+    if (!active()) {
+      start = 0
+      return go(permalink(post))
+    }
+    if (slides.classList.contains('zoomed')) return zoom(false)
+    const z = zone(event)
+    if (z === 0) zoom(true, event)
+    else show(index + z)
+  })
+
+  slides.addEventListener('mousemove', (event) => {
+    pan(event)
+    if (!active()) slides.style.cursor = 'pointer'
+    else if (slides.classList.contains('zoomed')) slides.style.cursor = 'zoom-out'
+    else {
+      const z = zone(event)
+      slides.style.cursor = z === 0 ? 'zoom-in' : z < 0 ? 'w-resize' : 'e-resize'
+    }
+  })
+
+  // called on every route change: on the post's page start at the clicked item
+  function reset() {
+    show(active() ? start : 0)
+    start = 0
+  }
+
+  reset()
+  return {
+    post,
+    reset,
+    step: (d) => show(index + d),
+    zoomed: () => slides.classList.contains('zoomed'),
+    unzoom: () => zoom(false),
+  }
+})
+
+document.addEventListener('keydown', (event) => {
+  if (!blog.classList.contains('single')) return
+  const gallery = galleries.find((g) => g.post.classList.contains('active'))
+  if (event.key === 'Escape') return gallery && gallery.zoomed() ? gallery.unzoom() : go('/blog')
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+  if (gallery) gallery.step(event.key === 'ArrowLeft' ? -1 : 1)
+})
+
+if (!routeBlog() && project) {
   const element = document.querySelector(`#${project}`)
   element.scrollIntoView()
   open(element)
@@ -16,14 +201,16 @@ if (project) {
 function open(element) {
   const url = element.getAttribute('data-url')
 
+  if (document.body.classList.contains('blog')) setBlog(false)
+
   if (element.classList.contains('show') || url === null) {
     right.style.display = 'none'
     frame.src = ''
-    window.history.pushState({}, {}, '/')
+    window.history.pushState({}, '', '/')
   } else {
     right.style.display = 'block'
     frame.src = url
-    window.history.pushState({}, {}, `?project=${element.id}`)
+    window.history.pushState({}, '', `/?project=${element.id}`)
   }
 
   if (url) {
@@ -35,9 +222,9 @@ function open(element) {
 function ccc(path) {
   if (path) {
     if (path.endsWith('.mp4')) {
-      c.innerHTML = `<video src="assets/${path}" muted loop autoplay></video>`
+      c.innerHTML = `<video src="/assets/${path}" muted loop autoplay></video>`
     } else {
-      c.innerHTML = `<img src="assets/${path}">`
+      c.innerHTML = `<img src="/assets/${path}">`
     }
     c.style.display = 'block'
   } else {
@@ -83,6 +270,7 @@ function measureDown() {
   const fit = Math.max(...lists.map((ul) => ul.scrollHeight))
   down.classList.remove('measure')
   down.style.setProperty('--down-fit', `${fit}px`)
+  down.style.setProperty('--contact-w', `${down.querySelector('div').offsetWidth}px`)
 }
 
 measureDown()

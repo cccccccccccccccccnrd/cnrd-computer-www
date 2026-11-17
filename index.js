@@ -8,6 +8,9 @@ const app = express()
 
 app.use('/', express.static(path.join(__dirname, 'public')))
 
+// /blog and /blog/<post-id> are the main page in blog mode (main.js reads the path)
+app.get(['/blog', '/blog/:post'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')))
+
 app.listen(2000)
 console.log('WWW listening on http://localhost:2000')
 

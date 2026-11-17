@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "node index.js"
+    "serve": "node index.js",
+    "blog": "node build-blog.js"
   },
   "repository": {
     "type": "git",
