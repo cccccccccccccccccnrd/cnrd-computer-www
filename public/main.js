@@ -399,8 +399,21 @@ bio.addEventListener('mouseleave', (event) => {
   ccc()
 })
 
+// on phones the preview panel is hidden: a project with a "⇝ www" link goes
+// straight to that website instead
+const phone = window.matchMedia('(max-width: 450px)')
+
+function wwwLink(element) {
+  return [].slice.call(element.querySelectorAll('p a')).find((a) => a.textContent.trim() === 'www') || null
+}
+
 projs.forEach((element) => {
-  element.addEventListener('click', function () {
+  element.addEventListener('click', function (event) {
+    const www = wwwLink(this)
+    if (phone.matches && www && !event.target.closest('a')) {
+      window.location.href = www.href
+      return
+    }
     open(this)
   })
 

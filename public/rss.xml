@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Conrad Weise, blog</title>
+    <link>https://cnrd.computer/blog</link>
+    <atom:link href="https://cnrd.computer/rss.xml" rel="self" type="application/rss+xml" />
+    <description>pictures, galleries and notes from cnrd.computer</description>
+    <lastBuildDate>Tue, 17 Nov 2026 16:56:56 GMT</lastBuildDate>
+    <item>
+      <title>04.11.2026</title>
+      <link>https://cnrd.computer/blog</link>
+      <guid isPermaLink="false">https://cnrd.computer/assets/blog/kekulesnake-669779887-inverted.jpg</guid>
+      <pubDate>Tue, 03 Nov 2026 23:14:59 GMT</pubDate>
+      <description><![CDATA[<p><img src="https://cnrd.computer/assets/blog/kekulesnake-669779887-inverted.jpg" /></p>]]></description>
+      <enclosure url="https://cnrd.computer/assets/blog/kekulesnake-669779887-inverted.jpg" length="16670" type="image/jpeg" />
+    </item>
+    <item>
+      <title>kjell and i wrote about ai and compression about a year ago.…</title>
+      <link>https://cnrd.computer/blog/1794934616</link>
+      <guid isPermaLink="true">https://cnrd.computer/blog/1794934616</guid>
+      <pubDate>Tue, 17 Nov 2026 16:56:56 GMT</pubDate>
+      <description><![CDATA[<p>kjell and i wrote about <a href="https://archive.org/details/ki-komprimierung-aesthetik-des-hyperdurchschnitts-2026-clean" target="_blank">ai and compression</a> about a year ago. i def feel like i want to continue this thought regarding machine to machine communication, agentic noise and the beginning of bureaucracy. lets see how many files we have to file((((:</p>]]></description>
+    </item>
+    <item>
+      <title>05.10.2026</title>
+      <link>https://cnrd.computer/blog</link>
+      <guid isPermaLink="false">https://cnrd.computer/assets/blog/AQPPwHSdmJED97z-kge5p1sWsaLVgVMOq0NdpcGKll_hlS7uzLeq7EY6vkg-9ZqBvC1R-48A0-ATCv42B7L6vbZAvgmXOGa1VyN-qBA.mp4</guid>
+      <pubDate>Mon, 05 Oct 2026 16:49:56 GMT</pubDate>
+      <description><![CDATA[<p><video src="https://cnrd.computer/assets/blog/AQPPwHSdmJED97z-kge5p1sWsaLVgVMOq0NdpcGKll_hlS7uzLeq7EY6vkg-9ZqBvC1R-48A0-ATCv42B7L6vbZAvgmXOGa1VyN-qBA.mp4" controls></video></p>]]></description>
+      <enclosure url="https://cnrd.computer/assets/blog/AQPPwHSdmJED97z-kge5p1sWsaLVgVMOq0NdpcGKll_hlS7uzLeq7EY6vkg-9ZqBvC1R-48A0-ATCv42B7L6vbZAvgmXOGa1VyN-qBA.mp4" length="453468" type="video/mp4" />
+    </item>
+    <item>
+      <title>10.12.2025</title>
+      <link>https://cnrd.computer/blog</link>
+      <guid isPermaLink="false">https://cnrd.computer/assets/blog/movement-504-2.jpg</guid>
+      <pubDate>Wed, 10 Dec 2025 13:17:30 GMT</pubDate>
+      <description><![CDATA[<p><img src="https://cnrd.computer/assets/blog/movement-504-2.jpg" /></p>]]></description>
+      <enclosure url="https://cnrd.computer/assets/blog/movement-504-2.jpg" length="110651" type="image/jpeg" />
+    </item>
+    <item>
+      <title>10.12.2025</title>
+      <link>https://cnrd.computer/blog</link>
+      <guid isPermaLink="false">https://cnrd.computer/assets/blog/movement-504-1.jpg</guid>
+      <pubDate>Wed, 10 Dec 2025 13:17:29 GMT</pubDate>
+      <description><![CDATA[<p><img src="https://cnrd.computer/assets/blog/movement-504-1.jpg" /></p>]]></description>
+      <enclosure url="https://cnrd.computer/assets/blog/movement-504-1.jpg" length="254171" type="image/jpeg" />
+    </item>
+    <item>
+      <title>sad boys: white marble tour, 03.2014</title>
+      <link>https://cnrd.computer/blog/yung-lean</link>
+      <guid isPermaLink="true">https://cnrd.computer/blog/yung-lean</guid>
+      <pubDate>Tue, 17 Nov 2026 15:44:57 GMT</pubDate>
+      <description><![CDATA[<p><img src="https://cnrd.computer/assets/blog/yung-lean/img_1056.jpg" /></p>
+<p>gallery, 17 items</p>]]></description>
+      <enclosure url="https://cnrd.computer/assets/blog/yung-lean/img_1056.jpg" length="1436594" type="image/jpeg" />
+    </item>
+  </channel>
+</rss>

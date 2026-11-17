@@ -10,6 +10,8 @@
 //                                                                     plus any .txt in it as text, at /blog/<folder-name>.
 //                                                                     The feed shows only its cover picture
 //
+// It also writes the RSS feed public/rss.xml (https://cnrd.computer/rss.xml).
+//
 // Posts keep the order they were added in; the feed shows the newest first. blog.json (next to
 // this script) remembers that order and per post its "time" (unix seconds, the file's creation
 // time when it was first built; unique per post), so a rebuild or a fresh clone keeps both. New
@@ -26,6 +28,8 @@ const FOLDER = path.join(ROOT, 'public', 'assets', 'blog')
 const URL_BASE = '/assets/blog'
 const MANIFEST = path.join(ROOT, 'blog.json')
 const INDEX = path.join(ROOT, 'public', 'index.html')
+const FEED = path.join(ROOT, 'public', 'rss.xml')
+const SITE = 'https://cnrd.computer'
 const START = '<!-- blog:start -->'
 const END = '<!-- blog:end -->'
 
@@ -95,6 +99,51 @@ function media(src, type, eager, cover, i, total) {
   return `<img${cls} src="${src}"${alt}${eager ? '' : ' loading="lazy"'} />`
 }
 
+// ---- rss helpers
+
+const MIME = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', avif: 'image/avif', mp4: 'video/mp4', m4v: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime' }
+const mime = (name) => MIME[name.split('.').pop().toLowerCase()] || 'application/octet-stream'
+
+// a text post has no title: use its first words, without [link](url) syntax
+function firstWords(text, max = 60) {
+  const plain = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '$1').replace(/\s+/g, ' ').trim()
+  if (plain.length <= max) return plain
+  return plain.slice(0, plain.lastIndexOf(' ', max) > 20 ? plain.lastIndexOf(' ', max) : max) + '…'
+}
+
+const cdata = (html) => `<![CDATA[${html.replace(/]]>/g, ']]]]><![CDATA[>')}]]>`
+
+function rss(items) {
+  const entries = items.map((item) => {
+    const guid = item.permalink
+      ? `<guid isPermaLink="true">${escape(item.link)}</guid>`
+      : `<guid isPermaLink="false">${escape(item.guid)}</guid>`
+    const enclosure = item.enclosure
+      ? `\n      <enclosure url="${escape(item.enclosure.url)}" length="${item.enclosure.length}" type="${item.enclosure.type}" />`
+      : ''
+    return `    <item>
+      <title>${escape(item.title)}</title>
+      <link>${escape(item.link)}</link>
+      ${guid}
+      <pubDate>${new Date(item.time * 1000).toUTCString()}</pubDate>
+      <description>${cdata(item.html)}</description>${enclosure}
+    </item>`
+  })
+  const latest = items.reduce((t, item) => Math.max(t, item.time), 0)
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Conrad Weise, blog</title>
+    <link>${SITE}/blog</link>
+    <atom:link href="${SITE}/rss.xml" rel="self" type="application/rss+xml" />
+    <description>pictures, galleries and notes from cnrd.computer</description>
+    <lastBuildDate>${new Date(latest * 1000).toUTCString()}</lastBuildDate>
+${entries.join('\n')}
+  </channel>
+</rss>
+`
+}
+
 // ---- order: blog.json + new files
 
 const manifest = fs.existsSync(MANIFEST) ? JSON.parse(fs.readFileSync(MANIFEST, 'utf8')) : { posts: [] }
@@ -131,6 +180,7 @@ fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n')
 // ---- html, newest first
 
 const ids = new Set()
+const feedItems = [] // filled alongside the html, newest first
 const articles = manifest.posts
   .slice()
   .reverse()
@@ -141,7 +191,15 @@ const articles = manifest.posts
     const caption = post.caption ? escape(post.caption) : ''
 
     if (type === 'text') {
-      const body = paragraphs(fs.readFileSync(full, 'utf8')).join('\n          ')
+      const source = fs.readFileSync(full, 'utf8')
+      const body = paragraphs(source).join('\n          ')
+      feedItems.push({
+        title: firstWords(source),
+        link: `${SITE}/blog/${post.time}`,
+        permalink: true,
+        time: post.time,
+        html: paragraphs(source).join('\n'),
+      })
       return `        <article class="post text"${date}>\n          <div class="body">\n            ${body.replace(/\n          /g, '\n            ')}\n          </div>\n        </article>`
     }
 
@@ -171,14 +229,36 @@ const articles = manifest.posts
       .map((m, i) => media(m.src, m.type, i === 0 || i === cover, i === cover, i, items.length))
       .join('\n            ')
     const textHtml = text.length ? `\n          <div class="text">\n            ${text.join('\n            ')}\n          </div>` : ''
+    const absolute = (src) => SITE + src
+    const mediaHtml = (m) =>
+      m.type === 'video' ? `<p><video src="${absolute(m.src)}" controls></video></p>` : `<p><img src="${absolute(m.src)}" /></p>`
+    const fileOf = (m) => path.join(FOLDER, ...decodeURIComponent(m.src.slice(URL_BASE.length + 1)).split('/'))
+    const enclosure = (m) => ({ url: absolute(m.src), length: fs.statSync(fileOf(m)).size, type: mime(m.src) })
+
     // a single picture/video: no caption, not clickable
     if (!collection) {
+      feedItems.push({
+        title: post.caption || post.date || dayMonthYear(post.time),
+        link: `${SITE}/blog`,
+        guid: absolute(items[0].src),
+        time: post.time,
+        html: mediaHtml(items[0]),
+        enclosure: enclosure(items[0]),
+      })
       return `        <article class="post gallery single-item"${date}>
           <div class="slides">
             ${slides}
           </div>
         </article>`
     }
+    feedItems.push({
+      title: post.caption || `gallery, ${post.date || dayMonthYear(post.time)}`,
+      link: `${SITE}/blog/${id.match(/"(.*)"/)[1]}`,
+      permalink: true,
+      time: post.time,
+      html: [mediaHtml(items[cover]), `<p>gallery, ${items.length} items</p>`, ...text].join('\n'),
+      enclosure: enclosure(items[cover]),
+    })
     // caption and count on top in the feed (on the post's own page they sit at the bottom)
     return `        <article class="post gallery collection"${id}${date}>
           <div class="meta">
@@ -197,6 +277,7 @@ const b = html.indexOf(END)
 if (a < 0 || b < 0) throw new Error(`markers ${START} / ${END} not found in ${INDEX}`)
 const out = html.slice(0, a + START.length) + '\n' + articles.join('\n') + '\n        ' + html.slice(b)
 fs.writeFileSync(INDEX, out)
+fs.writeFileSync(FEED, rss(feedItems))
 
 console.log(`blog: ${manifest.posts.length} posts (${fresh.length} new${removed.length ? `, removed: ${removed.join(', ')}` : ''})`)
 manifest.posts.forEach((p) => console.log(`  ${p.date || dayMonthYear(p.time)}  ${p.time}  ${p.path}`))
