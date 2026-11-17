@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>cnrd blog</title>
     <link>https://cnrd.computer/blog</link>
@@ -13,6 +13,8 @@
       <pubDate>Tue, 03 Nov 2026 23:14:59 GMT</pubDate>
       <description><![CDATA[<p><img src="https://cnrd.computer/assets/blog/kekulesnake-669779887-inverted.jpg" /></p>]]></description>
       <enclosure url="https://cnrd.computer/assets/blog/kekulesnake-669779887-inverted.jpg" length="16670" type="image/jpeg" />
+      <media:content url="https://cnrd.computer/assets/blog/kekulesnake-669779887-inverted.jpg" type="image/jpeg" medium="image" fileSize="16670" />
+      <media:thumbnail url="https://cnrd.computer/assets/blog/kekulesnake-669779887-inverted.jpg" />
     </item>
     <item>
       <title>kjell and i wrote about ai and compression about a year ago.…</title>
@@ -28,6 +30,7 @@
       <pubDate>Mon, 05 Oct 2026 16:49:56 GMT</pubDate>
       <description><![CDATA[<p><video src="https://cnrd.computer/assets/blog/AQPPwHSdmJED97z-kge5p1sWsaLVgVMOq0NdpcGKll_hlS7uzLeq7EY6vkg-9ZqBvC1R-48A0-ATCv42B7L6vbZAvgmXOGa1VyN-qBA.mp4" controls></video></p>]]></description>
       <enclosure url="https://cnrd.computer/assets/blog/AQPPwHSdmJED97z-kge5p1sWsaLVgVMOq0NdpcGKll_hlS7uzLeq7EY6vkg-9ZqBvC1R-48A0-ATCv42B7L6vbZAvgmXOGa1VyN-qBA.mp4" length="453468" type="video/mp4" />
+      <media:content url="https://cnrd.computer/assets/blog/AQPPwHSdmJED97z-kge5p1sWsaLVgVMOq0NdpcGKll_hlS7uzLeq7EY6vkg-9ZqBvC1R-48A0-ATCv42B7L6vbZAvgmXOGa1VyN-qBA.mp4" type="video/mp4" medium="video" fileSize="453468" />
     </item>
     <item>
       <title>10.12.2025</title>
@@ -36,6 +39,8 @@
       <pubDate>Wed, 10 Dec 2025 13:17:30 GMT</pubDate>
       <description><![CDATA[<p><img src="https://cnrd.computer/assets/blog/movement-504-2.jpg" /></p>]]></description>
       <enclosure url="https://cnrd.computer/assets/blog/movement-504-2.jpg" length="110651" type="image/jpeg" />
+      <media:content url="https://cnrd.computer/assets/blog/movement-504-2.jpg" type="image/jpeg" medium="image" fileSize="110651" />
+      <media:thumbnail url="https://cnrd.computer/assets/blog/movement-504-2.jpg" />
     </item>
     <item>
       <title>10.12.2025</title>
@@ -44,6 +49,8 @@
       <pubDate>Wed, 10 Dec 2025 13:17:29 GMT</pubDate>
       <description><![CDATA[<p><img src="https://cnrd.computer/assets/blog/movement-504-1.jpg" /></p>]]></description>
       <enclosure url="https://cnrd.computer/assets/blog/movement-504-1.jpg" length="254171" type="image/jpeg" />
+      <media:content url="https://cnrd.computer/assets/blog/movement-504-1.jpg" type="image/jpeg" medium="image" fileSize="254171" />
+      <media:thumbnail url="https://cnrd.computer/assets/blog/movement-504-1.jpg" />
     </item>
     <item>
       <title>sad boys: white marble tour, 03.2014</title>
@@ -53,6 +60,8 @@
       <description><![CDATA[<p><img src="https://cnrd.computer/assets/blog/yung-lean/img_1056.jpg" /></p>
 <p>gallery, 17 items</p>]]></description>
       <enclosure url="https://cnrd.computer/assets/blog/yung-lean/img_1056.jpg" length="1436594" type="image/jpeg" />
+      <media:content url="https://cnrd.computer/assets/blog/yung-lean/img_1056.jpg" type="image/jpeg" medium="image" fileSize="1436594" />
+      <media:thumbnail url="https://cnrd.computer/assets/blog/yung-lean/img_1056.jpg" />
     </item>
   </channel>
 </rss>

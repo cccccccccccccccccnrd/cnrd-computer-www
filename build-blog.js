@@ -118,9 +118,15 @@ function rss(items) {
     const guid = item.permalink
       ? `<guid isPermaLink="true">${escape(item.link)}</guid>`
       : `<guid isPermaLink="false">${escape(item.guid)}</guid>`
-    const enclosure = item.enclosure
-      ? `\n      <enclosure url="${escape(item.enclosure.url)}" length="${item.enclosure.length}" type="${item.enclosure.type}" />`
-      : ''
+    let enclosure = ''
+    if (item.enclosure) {
+      const e = item.enclosure
+      const medium = e.type.split('/')[0] // image or video
+      enclosure = `\n      <enclosure url="${escape(e.url)}" length="${e.length}" type="${e.type}" />`
+      // media RSS: readers like Feedly and Inoreader use these for the list-view thumbnail
+      enclosure += `\n      <media:content url="${escape(e.url)}" type="${e.type}" medium="${medium}" fileSize="${e.length}" />`
+      if (medium === 'image') enclosure += `\n      <media:thumbnail url="${escape(e.url)}" />`
+    }
     return `    <item>
       <title>${escape(item.title)}</title>
       <link>${escape(item.link)}</link>
@@ -131,7 +137,7 @@ function rss(items) {
   })
   const latest = items.reduce((t, item) => Math.max(t, item.time), 0)
   return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>cnrd blog</title>
     <link>${SITE}/blog</link>
