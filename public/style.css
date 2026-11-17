@@ -460,6 +460,12 @@ body .left .down #blog-button:hover {
   font-size: 0.666em;
 }
 
+/* text post label: date and time left, "txt" right */
+.post small.label {
+  display: flex;
+  justify-content: space-between;
+}
+
 .post p {
   margin: 0 0 1em 0;
   font-size: 0.8em;
@@ -647,4 +653,9 @@ body .left .down #blog-button:hover {
 /* /blog/<number> of a single picture/video (not linked anywhere, but still works) */
 #blog.single .post.single-item.active .slides > * {
   display: block;
+}
+
+/* local editing (npm run dev): no outline, the caret is enough */
+#blog .post .body[contenteditable='true']:focus {
+  outline: none;
 }

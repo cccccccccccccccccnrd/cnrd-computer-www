@@ -47,9 +47,159 @@ posts.forEach((post) => {
     caption.href = permalink(post)
     if (!caption.textContent.trim()) caption.textContent = label
   } else if (post.classList.contains('text')) {
-    post.insertAdjacentHTML('afterbegin', `<small class="label"><a href="${permalink(post)}">${label}</a></small>`)
+    post.insertAdjacentHTML('afterbegin', `<small class="label"><a href="${permalink(post)}">${label}</a><span>txt</span></small>`)
   }
 })
+
+// local editing (npm run dev only): a text post is editable on its own page
+// (/blog/<time>), plain text only, and every pause in typing writes the .txt
+// file and rebuilds the blog. syncEditing runs on every route change
+let syncEditing = () => {}
+
+if (['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+  fetch('/__blog-edit')
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => d && d.edit && enableEditing())
+    .catch(() => {})
+}
+
+function enableEditing() {
+  document.execCommand('defaultParagraphSeparator', false, 'p')
+
+  // DOM -> .txt: blocks are paragraphs (blank line between), links become [text](url)
+  function inline(node) {
+    if (node.nodeType === Node.TEXT_NODE) return node.textContent.replace(/\u00a0/g, ' ')
+    if (node.nodeName === 'BR') return '\n'
+    const inner = [].map.call(node.childNodes, inline).join('')
+    if (node.nodeName === 'A' && node.getAttribute('href')) return `[${inner}](${node.getAttribute('href')})`
+    return inner
+  }
+
+  function toText(body) {
+    const blocks = []
+    let loose = ''
+    ;[].forEach.call(body.childNodes, (node) => {
+      if (node.nodeName === 'P' || node.nodeName === 'DIV') {
+        blocks.push(loose, inline(node))
+        loose = ''
+      } else loose += inline(node)
+    })
+    blocks.push(loose)
+    return blocks
+      .map((b) => b.replace(/\n+$/, '').trim())
+      .filter(Boolean)
+      .join('\n\n')
+  }
+
+  posts
+    .filter((post) => post.classList.contains('text'))
+    .forEach((post) => {
+      const body = post.querySelector('.body')
+      if (!body) return
+      let timer = null
+
+      const save = () =>
+        fetch('/__blog-edit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ time: post.dataset.time, text: toText(body) }),
+        }).catch((e) => console.error('blog save failed', e))
+
+      // undo/redo: our own history (the browser's is unreliable here). A step is
+      // taken after each pause in typing; it keeps the html and the caret position
+      const history = { steps: [], index: -1, pending: null }
+
+      function caretOffset() {
+        const sel = window.getSelection()
+        if (!sel.rangeCount || !body.contains(sel.anchorNode)) return null
+        const range = document.createRange()
+        range.selectNodeContents(body)
+        range.setEnd(sel.anchorNode, sel.anchorOffset)
+        return range.toString().length
+      }
+
+      function placeCaret(offset) {
+        if (offset == null) return
+        const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT)
+        let node
+        let left = offset
+        while ((node = walker.nextNode())) {
+          if (left <= node.textContent.length) {
+            const range = document.createRange()
+            range.setStart(node, left)
+            range.collapse(true)
+            const sel = window.getSelection()
+            sel.removeAllRanges()
+            sel.addRange(range)
+            return
+          }
+          left -= node.textContent.length
+        }
+      }
+
+      function snapshot() {
+        clearTimeout(history.pending)
+        history.pending = null
+        const html = body.innerHTML
+        if (history.steps[history.index] && history.steps[history.index].html === html) return
+        history.steps = history.steps.slice(0, history.index + 1)
+        history.steps.push({ html, caret: caretOffset() })
+        history.index = history.steps.length - 1
+      }
+
+      function travel(delta) {
+        if (history.pending) snapshot() // keep what was typed since the last pause
+        const next = history.index + delta
+        if (next < 0 || next >= history.steps.length) return
+        history.index = next
+        body.innerHTML = history.steps[next].html
+        placeCaret(history.steps[next].caret)
+        clearTimeout(timer)
+        save()
+      }
+
+      snapshot()
+
+      body.addEventListener('input', () => {
+        clearTimeout(timer)
+        timer = setTimeout(save, 400)
+        clearTimeout(history.pending)
+        history.pending = setTimeout(snapshot, 400)
+      })
+
+      // the browser's own undo (e.g. Edit menu) goes through our history too
+      body.addEventListener('beforeinput', (event) => {
+        if (event.inputType === 'historyUndo' || event.inputType === 'historyRedo') {
+          event.preventDefault()
+          travel(event.inputType === 'historyUndo' ? -1 : 1)
+        }
+      })
+
+      // writing only: no bold/italic/underline; Cmd+Z undo, Cmd+Shift+Z / Cmd+Y redo
+      body.addEventListener('keydown', (event) => {
+        if (!(event.metaKey || event.ctrlKey)) return
+        const key = event.key.toLowerCase()
+        if (['b', 'i', 'u'].includes(key)) event.preventDefault()
+        if (key === 'z' || key === 'y') {
+          event.preventDefault()
+          travel(key === 'y' || event.shiftKey ? 1 : -1)
+        }
+      })
+      body.addEventListener('paste', (event) => {
+        event.preventDefault()
+        document.execCommand('insertText', false, event.clipboardData.getData('text/plain'))
+      })
+      body.addEventListener('drop', (event) => event.preventDefault())
+    })
+
+  // only the post shown on its own page is editable
+  syncEditing = () =>
+    posts.forEach((post) => {
+      const body = post.classList.contains('text') && post.querySelector('.body')
+      if (body) body.contentEditable = post.classList.contains('active') ? 'true' : 'false'
+    })
+  syncEditing()
+}
 
 function findPost(key) {
   return posts.find((p) => p.id === key) || posts.find((p) => p.dataset.time === key) || null
@@ -68,6 +218,7 @@ function routeBlog() {
   posts.forEach((p) => p.classList.toggle('active', p === post))
   blog.scrollTop = 0
   galleries.forEach((g) => g.reset())
+  syncEditing()
   return Boolean(path)
 }
 
@@ -107,7 +258,7 @@ const galleries = [].slice.call(document.querySelectorAll('.post.collection')).m
     index = (n + items.length) % items.length
     items.forEach((item, k) => item.classList.toggle('on', k === index))
     if (active()) count.textContent = items.length > 1 ? `${index + 1}/${items.length}` : ''
-    else count.textContent = post.classList.contains('collection') ? `${items.length} photos` : ''
+    else count.textContent = post.classList.contains('collection') ? 'gallery' : ''
     // preload the neighbours
     ;[index + 1, index - 1].forEach((k) => {
       const item = items[(k + items.length) % items.length]

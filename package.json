@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "serve": "node index.js",
-    "blog": "node build-blog.js"
+    "blog": "node build-blog.js",
+    "dev": "BLOG_EDIT=1 node index.js"
   },
   "repository": {
     "type": "git",

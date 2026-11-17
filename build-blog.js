@@ -136,7 +136,7 @@ const articles = manifest.posts
 
     if (type === 'text') {
       const body = paragraphs(fs.readFileSync(full, 'utf8')).join('\n          ')
-      return `        <article class="post text"${date}>\n          ${body}\n        </article>`
+      return `        <article class="post text"${date}>\n          <div class="body">\n            ${body.replace(/\n          /g, '\n            ')}\n          </div>\n        </article>`
     }
 
     let items = []
