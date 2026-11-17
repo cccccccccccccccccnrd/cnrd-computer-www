@@ -539,11 +539,12 @@ body .left .down #blog-button:hover {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  touch-action: pan-y pinch-zoom; /* horizontal swipes are ours (step through) */
+  touch-action: none; /* sliding and pinch-zoom are handled in main.js */
 }
 
-#blog.single .post.gallery.active .slides.zoomed {
-  touch-action: none; /* while zoomed, one finger pans the picture */
+/* the neighbour sliding in beside the current picture while dragging */
+#blog.single .post.gallery.active .slides > .peek {
+  display: block;
 }
 
 #blog.single .post.gallery.active .slides > * {

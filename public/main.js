@@ -258,6 +258,7 @@ const galleries = [].slice.call(document.querySelectorAll('.post.collection')).m
 
   function show(n) {
     zoom(false)
+    resetView()
     index = (n + items.length) % items.length
     items.forEach((item, k) => item.classList.toggle('on', k === index))
     if (active()) count.textContent = items.length > 1 ? `${index + 1}/${items.length}` : ''
@@ -304,17 +305,103 @@ const galleries = [].slice.call(document.querySelectorAll('.post.collection')).m
     return Math.abs(offset) <= half ? 0 : Math.sign(offset)
   }
 
-  // touch: swipe left/right to step; when zoomed, drag with one finger to pan
-  let touch = null
-  let swiped = false
+  // touch (phones, tablets): the picture follows the finger and the next or
+  // previous one slides in beside it; releasing past a fifth of the width moves
+  // on, otherwise it springs back. Two fingers pinch-zoom around the pinch
+  // point, one finger then moves the zoomed picture. Taps do nothing (the
+  // mouse keeps click-to-zoom)
+  const view = { scale: 1, x: 0, y: 0 }
+  let touch = null // one finger: { x, y, axis, dx, startX, startY }
+  let pinch = null // two fingers: { dist, scale, mid, x, y }
+  let lastTouch = 0
+  let sliding = false
+
+  const distance = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
+  const middle = (a, b) => ({ x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 })
+
+  function applyView() {
+    const item = items[index]
+    // keep the zoomed picture covering its own box: no panning past its edges
+    const maxX = (item.clientWidth * (view.scale - 1)) / 2
+    const maxY = (item.clientHeight * (view.scale - 1)) / 2
+    view.x = Math.min(Math.max(view.x, -maxX), maxX)
+    view.y = Math.min(Math.max(view.y, -maxY), maxY)
+    item.style.transition = 'none'
+    item.style.transformOrigin = '50% 50%'
+    item.style.transform = view.scale === 1 ? '' : `translate(${view.x}px, ${view.y}px) scale(${view.scale})`
+  }
+
+  function resetView() {
+    view.scale = 1
+    view.x = view.y = 0
+  }
+
+  function maxScale() {
+    const item = items[index]
+    const natural = item.naturalWidth || item.videoWidth || 0
+    return Math.min(8, Math.max(3, natural / (window.devicePixelRatio || 1) / (item.clientWidth || 1)))
+  }
+
+  // the neighbour on the side we're dragging towards, placed one width away
+  function neighbour(dx) {
+    return items[(index + (dx < 0 ? 1 : -1) + items.length) % items.length]
+  }
+
+  function place(dx, animate) {
+    const width = slides.clientWidth
+    const current = items[index]
+    const other = items.length > 1 && dx !== 0 ? neighbour(dx) : null
+    items.forEach((item) => {
+      if (item !== current && item !== other) {
+        item.classList.remove('peek')
+        item.style.transform = item.style.transition = ''
+      }
+    })
+    const transition = animate ? 'transform 250ms ease-out' : 'none'
+    current.style.transition = transition
+    current.style.transform = dx ? `translateX(${dx}px)` : ''
+    if (other) {
+      other.classList.add('peek')
+      other.style.transition = transition
+      other.style.transform = `translateX(${dx + (dx < 0 ? width : -width)}px)`
+    }
+  }
+
+  function release(dx) {
+    const width = slides.clientWidth
+    const go = items.length > 1 && Math.abs(dx) > width / 5
+    sliding = true
+    place(go ? (dx < 0 ? -width : width) : 0, true)
+    // keep the neighbour in view while the current one springs back
+    if (!go && dx) {
+      const other = neighbour(dx)
+      other.style.transition = 'transform 250ms ease-out'
+      other.style.transform = `translateX(${dx < 0 ? width : -width}px)`
+    }
+    setTimeout(() => {
+      items.forEach((item) => {
+        item.classList.remove('peek')
+        item.style.transform = item.style.transition = ''
+      })
+      sliding = false
+      if (go) show(index + (dx < 0 ? 1 : -1))
+    }, 260)
+  }
 
   slides.addEventListener(
     'touchstart',
     (event) => {
-      if (!active() || event.touches.length !== 1) return (touch = null)
-      const t = event.touches[0]
-      touch = { x: t.clientX, y: t.clientY }
-      swiped = false
+      if (!active() || sliding) return
+      lastTouch = Date.now()
+      if (event.touches.length === 2) {
+        if (touch && touch.axis === 'x') place(0, false) // a slide in progress becomes a pinch
+        touch = null
+        const [a, b] = event.touches
+        pinch = { dist: distance(a, b), scale: view.scale, mid: middle(a, b), x: view.x, y: view.y }
+      } else if (event.touches.length === 1 && !pinch) {
+        const t = event.touches[0]
+        touch = { x: t.clientX, y: t.clientY, axis: null, dx: 0, startX: view.x, startY: view.y }
+      }
     },
     { passive: true }
   )
@@ -322,35 +409,69 @@ const galleries = [].slice.call(document.querySelectorAll('.post.collection')).m
   slides.addEventListener(
     'touchmove',
     (event) => {
+      if (!active() || sliding) return
+      if (pinch && event.touches.length === 2) {
+        event.preventDefault()
+        const [a, b] = event.touches
+        const mid = middle(a, b)
+        view.scale = Math.min(Math.max((pinch.scale * distance(a, b)) / pinch.dist, 1), maxScale())
+        view.x = pinch.x + (mid.x - pinch.mid.x)
+        view.y = pinch.y + (mid.y - pinch.mid.y)
+        applyView()
+        return
+      }
       if (!touch || event.touches.length !== 1) return
       const t = event.touches[0]
-      if (slides.classList.contains('zoomed')) {
-        event.preventDefault() // no page scroll while panning
-        pan(t)
+      const dx = t.clientX - touch.x
+      const dy = t.clientY - touch.y
+      if (view.scale > 1) {
+        // zoomed: one finger moves the picture
+        event.preventDefault()
+        view.x = touch.startX + dx
+        view.y = touch.startY + dy
+        applyView()
+        return
+      }
+      if (!touch.axis && Math.hypot(dx, dy) > 8) touch.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+      if (touch.axis === 'x') {
+        event.preventDefault()
+        touch.dx = dx
+        place(dx, false)
       }
     },
     { passive: false }
   )
 
-  slides.addEventListener('touchend', (event) => {
-    if (!touch || slides.classList.contains('zoomed')) return (touch = null)
-    const t = event.changedTouches[0]
-    const dx = t.clientX - touch.x
-    const dy = t.clientY - touch.y
-    touch = null
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      swiped = true
-      show(index + (dx < 0 ? 1 : -1))
+  function touchEnd(event) {
+    if (!active()) return
+    lastTouch = Date.now()
+    if (pinch && event.touches.length < 2) {
+      pinch = null
+      if (view.scale <= 1.02) {
+        resetView()
+        applyView()
+      }
+      // a finger still down continues as a one-finger move from here
+      if (event.touches.length === 1) {
+        const t = event.touches[0]
+        touch = { x: t.clientX, y: t.clientY, axis: null, dx: 0, startX: view.x, startY: view.y }
+      }
+      return
     }
-  })
+    if (touch && touch.axis === 'x' && view.scale === 1) release(touch.dx)
+    if (event.touches.length === 0) touch = null
+  }
+
+  slides.addEventListener('touchend', touchEnd)
+  slides.addEventListener('touchcancel', touchEnd)
 
   slides.addEventListener('click', (event) => {
     if (!active()) {
       start = 0
       return go(permalink(post))
     }
-    // a swipe already stepped; ignore the click some browsers send after it
-    if (swiped) return (swiped = false)
+    // taps on touch screens do nothing (the click browsers send after a touch)
+    if (Date.now() - lastTouch < 800) return
     if (slides.classList.contains('zoomed')) return zoom(false)
     const z = zone(event)
     if (z === 0) zoom(true, event)
