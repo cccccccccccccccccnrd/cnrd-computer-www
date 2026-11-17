@@ -293,19 +293,64 @@ const galleries = [].slice.call(document.querySelectorAll('.post.collection')).m
     items[index].style.transformOrigin = `${x}% ${y}%`
   }
 
-  // -1 left of the middle column, 0 inside it, 1 right of it
+  // -1 left of the middle column, 0 inside it, 1 right of it. On narrow screens
+  // (phones) the middle column is at most a third of the width, so the sides
+  // stay tappable
   function zone(event) {
     const box = slides.getBoundingClientRect()
-    const half = parseFloat(getComputedStyle(document.body).getPropertyValue('--blog-width')) / 2 || 220
+    const column = parseFloat(getComputedStyle(document.body).getPropertyValue('--blog-width')) || 440
+    const half = Math.min(column, box.width / 3) / 2
     const offset = event.clientX - (box.left + box.width / 2)
     return Math.abs(offset) <= half ? 0 : Math.sign(offset)
   }
+
+  // touch: swipe left/right to step; when zoomed, drag with one finger to pan
+  let touch = null
+  let swiped = false
+
+  slides.addEventListener(
+    'touchstart',
+    (event) => {
+      if (!active() || event.touches.length !== 1) return (touch = null)
+      const t = event.touches[0]
+      touch = { x: t.clientX, y: t.clientY }
+      swiped = false
+    },
+    { passive: true }
+  )
+
+  slides.addEventListener(
+    'touchmove',
+    (event) => {
+      if (!touch || event.touches.length !== 1) return
+      const t = event.touches[0]
+      if (slides.classList.contains('zoomed')) {
+        event.preventDefault() // no page scroll while panning
+        pan(t)
+      }
+    },
+    { passive: false }
+  )
+
+  slides.addEventListener('touchend', (event) => {
+    if (!touch || slides.classList.contains('zoomed')) return (touch = null)
+    const t = event.changedTouches[0]
+    const dx = t.clientX - touch.x
+    const dy = t.clientY - touch.y
+    touch = null
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      swiped = true
+      show(index + (dx < 0 ? 1 : -1))
+    }
+  })
 
   slides.addEventListener('click', (event) => {
     if (!active()) {
       start = 0
       return go(permalink(post))
     }
+    // a swipe already stepped; ignore the click some browsers send after it
+    if (swiped) return (swiped = false)
     if (slides.classList.contains('zoomed')) return zoom(false)
     const z = zone(event)
     if (z === 0) zoom(true, event)
