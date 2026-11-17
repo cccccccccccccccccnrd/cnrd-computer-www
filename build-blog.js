@@ -4,7 +4,7 @@
 //
 // What goes in the folder:
 //   picture or video (jpg, png, gif, webp, avif, mp4, webm, mov)  -> a post with that one item, no caption, not clickable
-//   .txt file                                                      -> a text post (blank lines separate paragraphs,
+//   .txt file                                                      -> a text post, renamed to <unix time>.txt (blank lines separate paragraphs,
 //                                                                     [text](https://…) for links), /blog/<unix time>
 //   folder                                                         -> a collection: its pictures/videos in filename order,
 //                                                                     plus any .txt in it as text, at /blog/<folder-name>.
@@ -115,9 +115,15 @@ const fresh = present
 const times = new Set(manifest.posts.map((p) => p.time))
 fresh.forEach(({ name, at }) => {
   let time = Math.floor(at / 1000)
-  while (times.has(time)) time += 1
+  while (times.has(time) || (TEXT.test(name) && name !== `${time}.txt` && fs.existsSync(path.join(FOLDER, `${time}.txt`)))) time += 1
   times.add(time)
-  manifest.posts.push({ path: name, time })
+  // a new .txt is renamed to its timestamp: <time>.txt
+  let file = name
+  if (TEXT.test(name) && name !== `${time}.txt`) {
+    file = `${time}.txt`
+    fs.renameSync(path.join(FOLDER, name), path.join(FOLDER, file))
+  }
+  manifest.posts.push({ path: file, time })
 })
 
 fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n')

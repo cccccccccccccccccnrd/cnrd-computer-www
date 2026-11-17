@@ -411,7 +411,7 @@ body .left .down #blog-button:hover {
   display: none;
   height: 100%;
   overflow-y: auto;
-  padding: 1em;
+  padding: 0.7em;
 }
 
 .blog #frame {
@@ -422,7 +422,7 @@ body .left .down #blog-button:hover {
   display: block;
 }
 
-/* feed: one --blog-width column, centred. All sans serif, links without underline */
+/* feed: one --blog-width column, on the left. All sans serif, links without underline */
 #blog {
   font-family: 'Arial', sans-serif;
 }
@@ -444,7 +444,7 @@ body .left .down #blog-button:hover {
 .post {
   width: var(--blog-width);
   max-width: 100%;
-  margin: 0 auto 1.5em auto;
+  margin: 0 0 1.5em 0;
   padding: 0;
 }
 
@@ -521,7 +521,7 @@ body .left .down #blog-button:hover {
 }
 
 #blog.single .post.active {
-  margin: 0 auto;
+  margin: 0;
 }
 
 #blog.single {
@@ -574,54 +574,54 @@ body .left .down #blog-button:hover {
     padding-bottom: calc(0.2em + 8px) !important;
   }
 
-  .blog .left {
+  .blog-gallery .left {
     width: calc(var(--blog-left) + 0.5em);
   }
 
-  /* the boxes shrink to --blog-left, the content keeps its 400px layout and is cut off */
-  .blog .left .up,
-  .blog .left .down:not(.open) {
+  /* gallery pages only: the boxes shrink to --blog-left, the content keeps its 400px layout and is cut off */
+  .blog-gallery .left .up,
+  .blog-gallery .left .down:not(.open) {
     width: var(--blog-left);
   }
 
-  .blog .left .up > * {
+  .blog-gallery .left .up > * {
     width: calc(400px - 0.4em);
     flex-shrink: 0;
   }
 
   /* Exhibited/Writings keep their 400px-layout widths (--contact-w from main.js) */
-  .blog .left .down:not(.open) > div:not(:first-of-type) {
+  .blog-gallery .left .down:not(.open) > div:not(:first-of-type) {
     flex: 0 0 calc((400px - var(--contact-w, 0px)) / 2);
   }
 
   /* hovering the left side snaps the boxes back to 400px at once (no
      animation), over the blog, which keeps its size */
-  .blog .left {
+  .blog-gallery .left {
     position: relative;
     z-index: 10;
   }
 
   /* the whole column (gaps included) widens, the negative margin keeps the
      blog panel where it is */
-  .blog .left:hover {
+  .blog-gallery .left:hover {
     width: calc(400px + 0.5em);
     margin-right: calc(var(--blog-left) - 400px);
   }
 
-  .blog .left:hover .up,
-  .blog .left:hover .down:not(.open) {
+  .blog-gallery .left:hover .up,
+  .blog-gallery .left:hover .down:not(.open) {
     width: 400px;
   }
 
-  .blog .left:hover .up {
+  .blog-gallery .left:hover .up {
     background: black;
   }
 
-  .blog .left:hover .down {
+  .blog-gallery .left:hover .down {
     background: linear-gradient(transparent, blue), black;
   }
 
-  .blog .left:hover .down.open {
+  .blog-gallery .left:hover .down.open {
     background: linear-gradient(black, blue);
   }
 }

@@ -8,9 +8,10 @@ const projs = [].slice.call(document.querySelectorAll('.proj'))
 const project = new URLSearchParams(window.location.search).get('project')
 const blogButton = document.querySelector('#blog-button')
 
-// blog mode: left column collapses to 40px (--blog-left in style.css), #right shows #blog instead of the iframe
+// blog mode: #right shows #blog instead of the iframe; on a gallery's own page the left column also collapses (--blog-left in style.css)
 function setBlog(on) {
   document.body.classList.toggle('blog', on)
+  if (!on) document.body.classList.remove('blog-gallery')
   if (on) {
     projs.forEach((e) => e.classList.remove('show'))
     frame.src = ''
@@ -215,6 +216,8 @@ function routeBlog() {
   setBlog(Boolean(path))
   const post = path && path.post ? findPost(decodeURIComponent(path.post)) : null
   blog.classList.toggle('single', Boolean(post))
+  // the left column collapses only on a gallery's own page
+  document.body.classList.toggle('blog-gallery', Boolean(post && post.classList.contains('gallery')))
   posts.forEach((p) => p.classList.toggle('active', p === post))
   blog.scrollTop = 0
   galleries.forEach((g) => g.reset())
@@ -389,7 +392,7 @@ document.addEventListener('mousemove', (event) => {
 })
 
 bio.addEventListener('mouseenter', (event) => {
-  ccc('conrad.png')
+  ccc('bio-gcc.jpg')
 })
 
 bio.addEventListener('mouseleave', (event) => {
