@@ -49,6 +49,9 @@ posts.forEach((post) => {
     if (!caption.textContent.trim()) caption.textContent = label
   } else if (post.classList.contains('text')) {
     post.insertAdjacentHTML('afterbegin', `<small class="label"><a href="${permalink(post)}">${label}</a><span>txt</span></small>`)
+  } else if (post.classList.contains('stack')) {
+    // a stack of pictures: same label, type "imgs", not a link (the post isn't clickable)
+    post.insertAdjacentHTML('afterbegin', `<small class="label"><span>${label}</span><span>imgs</span></small>`)
   }
 })
 
@@ -235,20 +238,34 @@ window.addEventListener('popstate', routeBlog)
 // permalinks inside the blog: no reload
 blog.addEventListener('click', (event) => {
   const link = event.target.closest('a[href^="/blog"]')
-  if (!link) return
-  event.preventDefault()
-  go(link.getAttribute('href'))
+  if (link) {
+    event.preventDefault()
+    return go(link.getAttribute('href'))
+  }
+  // in the feed a click anywhere on a post opens its own page (links in the
+  // text still go to their sources; a gallery's pictures handle their own click)
+  if (blog.classList.contains('single') || event.target.closest('a')) return
+  const post = event.target.closest('.post')
+  if (!post || (post.classList.contains('gallery') && event.target.closest('.slides'))) return
+  const picture = post.classList.contains('stack') && event.target.closest('.slides > *')
+  go(permalink(post))
+  // a stack's page: scroll to the picture that was clicked
+  if (picture) picture.scrollIntoView()
 })
 
 // picture/video posts and collections. Feed: single items in full, a collection
 // as its cover; a click opens the post (a collection at picture 1). Own page: one item at a time filling the panel; a click
 // in the middle (--blog-width) zooms in (it follows the mouse), left/right of it
 // steps back/forward, so do the arrow keys
-// (single pictures/videos, .single-item, are just shown: no caption, no click)
-const galleries = [].slice.call(document.querySelectorAll('.post.collection')).map((post) => {
+// galleries (folders) and single pictures/videos: on their own page a slider
+// filling the panel. Stacks ("imgs") are not galleries: their page shows the
+// pictures one after another
+const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map((post) => {
   const slides = post.querySelector('.slides')
   const items = [].slice.call(slides.children)
+  // where the type/counter goes: a gallery's .count, a stack's label (right side)
   const count = post.querySelector('.count')
+  const type = post.classList.contains('collection') ? 'gallery' : ''
   let index = 0
   let start = 0
 
@@ -261,8 +278,7 @@ const galleries = [].slice.call(document.querySelectorAll('.post.collection')).m
     resetView()
     index = (n + items.length) % items.length
     items.forEach((item, k) => item.classList.toggle('on', k === index))
-    if (active()) count.textContent = items.length > 1 ? `${index + 1}/${items.length}` : ''
-    else count.textContent = post.classList.contains('collection') ? 'gallery' : ''
+    if (count) count.textContent = active() && items.length > 1 ? `${index + 1}/${items.length}` : type
     // preload the neighbours
     ;[index + 1, index - 1].forEach((k) => {
       const item = items[(k + items.length) % items.length]

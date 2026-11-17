@@ -473,16 +473,23 @@ body .left .down #blog-button:hover {
 
 /* picture/video posts and collections. Feed: every item, one after another,
    at the column width */
-.post.gallery .slides {
+.post.gallery .slides,
+.post.stack .slides {
   padding: 0;
 }
 
-.post.collection .slides {
+.post.gallery .slides {
   user-select: none;
+}
+
+/* in the feed a whole post is clickable: it opens the post's own page */
+#blog:not(.single) .post {
   cursor: pointer;
 }
 
-.post.gallery .slides > * {
+/* stacks ("imgs") show their pictures one after another, on their own page too */
+.post.gallery .slides > *,
+.post.stack .slides > * {
   display: block;
   width: 100%;
   max-width: none;
@@ -654,11 +661,6 @@ body .left .down #blog-button:hover {
   .post.gallery img {
     max-width: 100%;
   }
-}
-
-/* /blog/<number> of a single picture/video (not linked anywhere, but still works) */
-#blog.single .post.single-item.active .slides > * {
-  display: block;
 }
 
 /* local editing (npm run dev): no outline, the caret is enough */

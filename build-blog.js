@@ -3,12 +3,16 @@
 //   npm run blog
 //
 // What goes in the folder:
-//   picture or video (jpg, png, gif, webp, avif, mp4, webm, mov)  -> a post with that one item, no caption, not clickable
+//   picture or video (jpg, png, gif, webp, avif, mp4, webm, mov)  -> a post with that one item, no caption, /blog/<unix time>
 //   .txt file                                                      -> a text post, renamed to <unix time>.txt (blank lines separate paragraphs,
 //                                                                     [text](https://…) for links), /blog/<unix time>
 //   folder                                                         -> a collection: its pictures/videos in filename order,
 //                                                                     plus any .txt in it as text, at /blog/<folder-name>.
-//                                                                     The feed shows only its cover picture
+//                                                                     The feed shows only its cover picture.
+//                                                                     With "stack": true in blog.json a folder is
+//                                                                     instead one post showing all its pictures
+//                                                                     one after another (filename order), labelled
+//                                                                     "<date>, <time>  imgs", at /blog/<unix time>
 //
 // It also writes the RSS feed public/rss.xml (https://cnrd.computer/rss.xml).
 //
@@ -214,15 +218,17 @@ const articles = manifest.posts
         .filter((n) => IMAGE.test(n) || VIDEO.test(n))
         .map((n) => ({ src: url(post.path, n), type: VIDEO.test(n) ? 'video' : 'image' }))
       text = names.filter((n) => TEXT.test(n)).flatMap((n) => paragraphs(fs.readFileSync(path.join(full, n), 'utf8')))
-      let s = slug(post.path) || 'collection'
-      while (ids.has(s) || /^\d+$/.test(s)) s += '-'
-      ids.add(s)
-      id = ` id="${s}"`
+      if (!post.stack) {
+        let s = slug(post.path) || 'collection'
+        while (ids.has(s) || /^\d+$/.test(s)) s += '-'
+        ids.add(s)
+        id = ` id="${s}"`
+      }
     } else {
       items = [{ src: url(post.path), type }]
     }
 
-    const collection = type === 'collection'
+    const collection = type === 'collection' && !post.stack
     const cover = collection ? Math.min(Math.max(parseInt(post.cover, 10) || 1, 1), items.length) - 1 : -1
     const slides = items
       .map((m, i) => media(m.src, m.type, i === 0 || i === cover, i === cover, i, items.length))
@@ -234,17 +240,19 @@ const articles = manifest.posts
     const fileOf = (m) => path.join(FOLDER, ...decodeURIComponent(m.src.slice(URL_BASE.length + 1)).split('/'))
     const enclosure = (m) => ({ url: absolute(m.src), length: fs.statSync(fileOf(m)).size, type: mime(m.src) })
 
-    // a single picture/video: no caption, not clickable
+    // a single picture/video, or a stack (folder with "stack": true): everything
+    // shown in the feed; a click opens /blog/<time>
     if (!collection) {
       feedItems.push({
-        title: post.caption || String(post.time), // a single picture/video: its unix time
-        link: `${SITE}/blog`,
-        guid: absolute(items[0].src),
+        title: post.caption || String(post.time), // titled with its unix time
+        link: `${SITE}/blog/${post.time}`,
+        permalink: true,
         time: post.time,
-        html: mediaHtml(items[0]),
+        html: [...items.map(mediaHtml), ...text].join('\n'),
         enclosure: enclosure(items[0]),
       })
-      return `        <article class="post gallery single-item"${date}>
+      // a stack is not a gallery: its own page shows the pictures one after another
+      return `        <article class="${post.stack ? 'post stack' : 'post gallery single-item'}"${date}>
           <div class="slides">
             ${slides}
           </div>
