@@ -104,13 +104,6 @@ function media(src, type, eager, cover, i, total) {
 const MIME = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', avif: 'image/avif', mp4: 'video/mp4', m4v: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime' }
 const mime = (name) => MIME[name.split('.').pop().toLowerCase()] || 'application/octet-stream'
 
-// a text post has no title: use its first words, without [link](url) syntax
-function firstWords(text, max = 60) {
-  const plain = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '$1').replace(/\s+/g, ' ').trim()
-  if (plain.length <= max) return plain
-  return plain.slice(0, plain.lastIndexOf(' ', max) > 20 ? plain.lastIndexOf(' ', max) : max) + '…'
-}
-
 const cdata = (html) => `<![CDATA[${html.replace(/]]>/g, ']]]]><![CDATA[>')}]]>`
 
 function rss(items) {
@@ -200,7 +193,7 @@ const articles = manifest.posts
       const source = fs.readFileSync(full, 'utf8')
       const body = paragraphs(source).join('\n          ')
       feedItems.push({
-        title: firstWords(source),
+        title: String(post.time), // text posts are titled with their unix time too
         link: `${SITE}/blog/${post.time}`,
         permalink: true,
         time: post.time,
@@ -244,7 +237,7 @@ const articles = manifest.posts
     // a single picture/video: no caption, not clickable
     if (!collection) {
       feedItems.push({
-        title: post.caption || post.date || dayMonthYear(post.time),
+        title: post.caption || String(post.time), // a single picture/video: its unix time
         link: `${SITE}/blog`,
         guid: absolute(items[0].src),
         time: post.time,
