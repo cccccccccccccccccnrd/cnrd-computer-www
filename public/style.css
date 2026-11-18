@@ -381,7 +381,7 @@ iframe {
   display: inline-flex;
   align-items: center;
   min-height: 26px;
-  padding: 4px 12px 4px 18px !important; /* text lines up with the Contact links */
+  padding: 4px 17px 4px 18px !important; /* text lines up with the Contact links */
   font-family: var(--font-family);
   font-size: 0.8em; /* same as the Contact links */
   line-height: 1.15;
@@ -394,7 +394,10 @@ iframe {
   user-select: none;
 }
 
-body .left .down #blog-button:hover {
+/* hover, pressed, and while the blog is open: white with black text */
+body .left .down #blog-button:hover,
+body .left .down #blog-button:active,
+body.blog .left .down #blog-button {
   color: #000;
   background: #fff;
   cursor: pointer;
@@ -402,10 +405,6 @@ body .left .down #blog-button:hover {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), 0 0 1em rgb(0 0 255 / 0.28), 0 1px 2px rgb(0 0 0 / 0.5);
 }
 
-.left .down #blog-button:active {
-  background: var(--glass);
-  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.4);
-}
 
 #blog {
   display: none;
