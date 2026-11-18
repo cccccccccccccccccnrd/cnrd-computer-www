@@ -568,6 +568,13 @@ body .left .down #blog-button:hover {
   display: block;
 }
 
+/* sliding: let the browser move the pictures on the GPU */
+#blog.single .post.gallery.active .slides > .on,
+#blog.single .post.gallery.active .slides > .peek {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
 #blog.single .post.gallery.active .text {
   display: none;
 }

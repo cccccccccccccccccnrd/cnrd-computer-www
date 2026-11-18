@@ -276,10 +276,12 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
     index = (n + items.length) % items.length
     items.forEach((item, k) => item.classList.toggle('on', k === index))
     if (count) count.textContent = active() && items.length > 1 ? `${index + 1}/${items.length}` : type
-    // preload the neighbours
+    // preload and decode the neighbours, so sliding them in doesn't stall
     ;[index + 1, index - 1].forEach((k) => {
       const item = items[(k + items.length) % items.length]
-      if (item.tagName === 'IMG') item.loading = 'eager'
+      if (item.tagName !== 'IMG') return
+      item.loading = 'eager'
+      if (active() && item.decode) item.decode().catch(() => {})
     })
   }
 
@@ -319,7 +321,8 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
   }
 
   // touch (phones, tablets): the picture follows the finger and the next or
-  // previous one slides in beside it. Letting go after an eighth of the width,
+  // previous one slides in beside it (moves applied once per frame, neighbours
+  // decoded ahead). Letting go after an eighth of the width,
   // or after a quick flick, moves on; otherwise it springs back. A new swipe
   // during the animation finishes it at once. Two fingers pinch-zoom around the
   // pinch point, one finger then moves the zoomed picture; a double tap zooms
@@ -380,24 +383,37 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
     return items[(index + (dx < 0 ? 1 : -1) + items.length) % items.length]
   }
 
+  const EASE = 'cubic-bezier(0.22, 0.61, 0.36, 1)' // a soft ease-out
+  let peeking = null // the neighbour currently slid in
+
   function place(dx, duration) {
     const width = slides.clientWidth
     const current = items[index]
     const other = items.length > 1 && dx !== 0 ? neighbour(dx) : null
-    items.forEach((item) => {
-      if (item !== current && item !== other) {
-        item.classList.remove('peek')
-        item.style.transform = item.style.transition = ''
-      }
-    })
-    const transition = duration ? `transform ${duration}ms cubic-bezier(0.2, 0.7, 0.3, 1)` : 'none'
+    // only the two moving pictures are touched (not all of them on every move)
+    if (peeking && peeking !== other && peeking !== current) {
+      peeking.classList.remove('peek')
+      peeking.style.transform = peeking.style.transition = ''
+    }
+    peeking = other
+    const transition = duration ? `transform ${duration}ms ${EASE}` : 'none'
     current.style.transition = transition
-    current.style.transform = dx ? `translateX(${dx}px)` : ''
+    current.style.transform = dx ? `translate3d(${dx}px, 0, 0)` : ''
     if (other) {
       other.classList.add('peek')
       other.style.transition = transition
-      other.style.transform = `translateX(${dx + (dx < 0 ? width : -width)}px)`
+      other.style.transform = `translate3d(${dx + (dx < 0 ? width : -width)}px, 0, 0)`
     }
+  }
+
+  // finger moves are applied once per screen frame
+  let frame = null
+  function placeSoon(dx) {
+    if (frame) cancelAnimationFrame(frame)
+    frame = requestAnimationFrame(() => {
+      frame = null
+      place(dx, 0)
+    })
   }
 
   // speed of the finger over its last ~100ms of movement, in px per ms
@@ -414,23 +430,27 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
     const flick = Math.abs(speed) > 0.25 && Math.abs(dx) > 15 && Math.sign(speed) === Math.sign(dx)
     const go = items.length > 1 && dx !== 0 && (Math.abs(dx) > width / 8 || flick)
     const target = go ? (dx < 0 ? -width : width) : 0
-    // the faster the finger, the quicker the rest of the way
-    const duration = Math.round(Math.min(320, Math.max(140, Math.abs(target - dx) / Math.max(Math.abs(speed), 1.2))))
+    // the faster the finger, the quicker the rest of the way (280–450ms)
+    const duration = Math.round(Math.min(450, Math.max(280, Math.abs(target - dx) / Math.max(Math.abs(speed), 0.9))))
+    if (frame) cancelAnimationFrame(frame)
+    frame = null
     place(target, duration)
     // keep the neighbour in view while the current one springs back
     if (!go && dx && items.length > 1) {
       const other = neighbour(dx)
-      other.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.7, 0.3, 1)`
-      other.style.transform = `translateX(${dx < 0 ? width : -width}px)`
+      other.style.transition = `transform ${duration}ms ${EASE}`
+      other.style.transform = `translate3d(${dx < 0 ? width : -width}px, 0, 0)`
     }
     const finish = () => {
       if (sliding !== finish) return
       clearTimeout(timer)
       sliding = null
-      items.forEach((item) => {
+      ;[items[index], peeking].forEach((item) => {
+        if (!item) return
         item.classList.remove('peek')
         item.style.transform = item.style.transition = ''
       })
+      peeking = null
       if (go) show(index + (dx < 0 ? 1 : -1))
     }
     const timer = setTimeout(finish, duration + 20)
@@ -448,7 +468,12 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
       if (sliding) sliding() // a new swipe during the animation: finish it now
       lastTouch = Date.now()
       if (event.touches.length === 2) {
-        if (touch && touch.moved) place(0, 0) // a slide in progress becomes a pinch
+        if (touch && touch.moved) {
+          // a slide in progress becomes a pinch
+          if (frame) cancelAnimationFrame(frame)
+          frame = null
+          place(0, 0)
+        }
         touch = null
         pinched = true
         const [a, b] = event.touches
@@ -491,7 +516,7 @@ const galleries = [].slice.call(document.querySelectorAll('.post.gallery')).map(
       }
       // any one-finger drag slides sideways; with only one picture it just gives a little
       touch.dx = items.length > 1 ? dx : dx / 3
-      if (touch.moved) place(touch.dx, 0)
+      if (touch.moved) placeSoon(touch.dx)
     },
     { passive: false }
   )
