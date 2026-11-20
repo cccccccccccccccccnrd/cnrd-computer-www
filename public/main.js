@@ -799,12 +799,20 @@ function measureDown() {
   const lists = [].slice.call(copy.querySelectorAll('ul'))
   const fit = Math.max(...lists.map((ul) => ul.scrollHeight))
   // Exhibited and Writings share the open width equally: room for the longer
-  // one twice
-  const [a, b] = [].filter
-    .call(copy.children, (e) => e.tagName === 'DIV')
-    .slice(1)
-    .map((e) => e.getBoundingClientRect().width)
-  const width = Math.ceil(copy.getBoundingClientRect().width + Math.abs(a - b))
+  // one twice. Then trimmed so the text on the right ends as far from the
+  // edge as the Contact text starts on the left
+  const box = copy.getBoundingClientRect()
+  const cols = [].filter.call(copy.children, (e) => e.tagName === 'DIV')
+  const [a, b] = cols.slice(1).map((e) => e.getBoundingClientRect().width)
+  const textBox = (list) =>
+    [].map.call(list.querySelectorAll('li'), (li) => {
+      const range = document.createRange()
+      range.selectNodeContents(li)
+      return range.getBoundingClientRect()
+    })
+  const leftGap = Math.min(...textBox(cols[0]).map((r) => r.left)) - box.left
+  const rightGap = box.right - Math.max(...textBox(cols[cols.length - 1]).map((r) => r.right)) + (Math.max(a, b) - b)
+  const width = Math.ceil(box.width + Math.abs(a - b) - Math.max(0, rightGap - leftGap))
   copy.remove()
   down.style.setProperty('--down-fit', `${fit}px`)
   down.style.setProperty('--down-w', `${width}px`)
@@ -824,7 +832,7 @@ document.fonts.ready.then(measureDown)
 // only while opening/closing so other size changes stay instant. While open
 // or animating it lies over .up instead of pushing it (.down-open)
 const OPEN_DELAY = 400
-const ANIM_TIME = 640 // 280ms + 80ms pause + 280ms, as in style.css
+const ANIM_TIME = 1850 // 400ms + 1400ms, opening and closing, as in style.css
 const leftColumn = down.parentNode
 let openTimer = null
 let animTimer = null
