@@ -21,7 +21,8 @@
 // time when it was first built; unique per post), so a rebuild or a fresh clone keeps both. New
 // files are appended in the order of their creation date. A post's label is "DD.MM.YYYY, <time>"
 // and its permalink /blog/<time>. In blog.json you can also set, per post: "date" (replaces the
-// DD.MM.YYYY), "caption" (replaces the whole label) and, for a folder, "cover" (which picture the
+// DD.MM.YYYY), "caption" (replaces the whole label), "link" (a URL shown, without https://, and linked
+// on the right of a stack's label instead of its type) and, for a folder, "cover" (which picture the
 // feed shows, 1-based, default 1).
 
 const fs = require('fs')
@@ -252,7 +253,11 @@ const articles = manifest.posts
         enclosure: enclosure(items[0]),
       })
       // a stack is not a gallery: its own page shows the pictures one after another
-      return `        <article class="${post.stack ? 'post stack' : 'post gallery single-item'}"${date}>
+      // a single picture/video with a caption shows like a stack, the caption as its label
+      const titled = !post.stack && caption ? ` data-caption="${caption}"` : ''
+      // "link" in blog.json: shown and linked on the right of the label (main.js)
+      const linked = post.link ? ` data-link="${escape(post.link)}"` : ''
+      return `        <article class="${post.stack || titled ? 'post stack' : 'post gallery single-item'}"${date}${titled}${linked}>
           <div class="slides">
             ${slides}
           </div>

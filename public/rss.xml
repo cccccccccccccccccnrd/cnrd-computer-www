@@ -5,7 +5,16 @@
     <link>https://cnrd.computer/blog</link>
     <atom:link href="https://cnrd.computer/rss.xml" rel="self" type="application/rss+xml" />
     <description>pictures, galleries and notes from cnrd.computer</description>
-    <lastBuildDate>Tue, 17 Nov 2026 16:56:56 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 20 Nov 2026 14:27:31 GMT</lastBuildDate>
+    <item>
+      <title>coming to u soon</title>
+      <link>https://cnrd.computer/blog/1795184851</link>
+      <guid isPermaLink="true">https://cnrd.computer/blog/1795184851</guid>
+      <pubDate>Fri, 20 Nov 2026 14:27:31 GMT</pubDate>
+      <description><![CDATA[<p><video src="https://cnrd.computer/assets/blog/e2-spin-loop.mp4" controls></video></p>]]></description>
+      <enclosure url="https://cnrd.computer/assets/blog/e2-spin-loop.mp4" length="10051192" type="video/mp4" />
+      <media:content url="https://cnrd.computer/assets/blog/e2-spin-loop.mp4" type="video/mp4" medium="video" fileSize="10051192" />
+    </item>
     <item>
       <title>1736070946</title>
       <link>https://cnrd.computer/blog/1736070946</link>

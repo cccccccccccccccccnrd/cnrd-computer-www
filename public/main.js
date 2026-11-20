@@ -51,7 +51,13 @@ posts.forEach((post) => {
     post.insertAdjacentHTML('afterbegin', `<small class="label"><a href="${permalink(post)}">${label}</a><span>txt</span></small>`)
   } else if (post.classList.contains('stack')) {
     // a stack of pictures: same label, type "imgs", not a link (the post isn't clickable)
-    post.insertAdjacentHTML('afterbegin', `<small class="label"><span>${label}</span><span>imgs</span></small>`)
+    // a titled single picture/video: its caption instead, type "video" for a video
+    const video = post.querySelectorAll('.slides > *').length === 1 && post.querySelector('.slides > video')
+    const type = video ? 'video' : 'imgs'
+    // with a link, the right side is that link, shown without https://
+    const shown = (post.dataset.link || '').replace(/^https?:\/\//, '').replace(/\/$/, '')
+    const right = post.dataset.link ? `<a href="${post.dataset.link}" target="_blank">${shown}</a>` : `<span>${type}</span>`
+    post.insertAdjacentHTML('afterbegin', `<small class="label"><span>${post.dataset.caption || label}</span>${right}</small>`)
   }
 })
 
