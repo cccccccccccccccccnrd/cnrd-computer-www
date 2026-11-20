@@ -18,6 +18,7 @@ function setBlog(on) {
     right.style.display = 'block'
   } else {
     right.style.display = 'none'
+    columns.innerHTML = ''
   }
 }
 
@@ -231,6 +232,7 @@ function routeBlog() {
   blog.scrollTop = 0
   galleries.forEach((g) => g.reset())
   syncEditing()
+  buildColumns()
   return Boolean(path)
 }
 
@@ -605,6 +607,100 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') return gallery && gallery.zoomed() ? gallery.unzoom() : go('/blog')
   if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
   if (gallery) gallery.step(event.key === 'ArrowLeft' ? -1 : 1)
+})
+
+// feed on wide screens (mouse/trackpad): a copy of the feed at the right edge
+// of the panel runs in reverse, starting at the end. A single position (pos),
+// moved by the wheel or keys anywhere over the feed, is applied to #blog and
+// the copy in the same frame
+const wide = window.matchMedia('(min-width: 451px) and (hover: hover)')
+const columns = document.createElement('div')
+columns.id = 'blog-columns'
+right.appendChild(columns)
+let pos = 0
+let pending = null
+
+// every picture loads at once, so each copy has the same layout as #blog
+blog.querySelectorAll('img[loading="lazy"]').forEach((img) => (img.loading = 'eager'))
+
+function feedShown() {
+  return wide.matches && document.body.classList.contains('blog') && !blog.classList.contains('single')
+}
+
+function buildColumns() {
+  // one copy, flush with the right edge of the panel, if it fits next to #blog
+  const pitch = blog.getBoundingClientRect().width
+  const width = right.getBoundingClientRect().width
+  if (!feedShown() || width < 2 * pitch) {
+    columns.innerHTML = ''
+    return
+  }
+  if (!columns.children.length) {
+    const col = document.createElement('div')
+    col.className = 'blog-col'
+    const copy = document.createElement('div')
+    ;[].forEach.call(blog.childNodes, (node) => copy.appendChild(node.cloneNode(true)))
+    col.appendChild(copy)
+    columns.appendChild(col)
+  }
+  const col = columns.firstChild
+  col.style.left = `${width - pitch}px`
+  col.style.width = `${pitch}px`
+  scrollFeed(blog.scrollTop - pos) // re-apply (routeBlog may have reset #blog)
+}
+
+// move the shared position by delta and draw it on the next frame. The copy is
+// #blog reversed: it starts at the end of the feed and runs the other way, so
+// when #blog is at the top the copy is at the bottom and the other way round
+function scrollFeed(delta) {
+  const max = Math.max(0, blog.scrollHeight - blog.clientHeight)
+  pos = Math.min(Math.max(pos + delta, 0), max)
+  if (pending) return
+  pending = requestAnimationFrame(() => {
+    pending = null
+    const max = Math.max(0, blog.scrollHeight - blog.clientHeight)
+    blog.scrollTop = pos
+    if (columns.firstChild) columns.firstChild.firstChild.style.transform = `translateY(${pos - max}px)`
+  })
+}
+
+right.addEventListener(
+  'wheel',
+  (event) => {
+    if (!feedShown()) return
+    event.preventDefault()
+    scrollFeed(event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * blog.clientHeight : event.deltaY)
+  },
+  { passive: false }
+)
+
+document.addEventListener('keydown', (event) => {
+  if (!feedShown() || event.target.isContentEditable || /INPUT|TEXTAREA/.test(event.target.tagName)) return
+  const page = blog.clientHeight * 0.9
+  const steps = { ArrowDown: 40, ArrowUp: -40, PageDown: page, PageUp: -page, ' ': event.shiftKey ? -page : page, Home: -Infinity, End: Infinity }
+  if (!(event.key in steps)) return
+  event.preventDefault()
+  scrollFeed(steps[event.key])
+})
+
+window.addEventListener('resize', buildColumns)
+// a picture finishing loading changes the feed's length: redraw the copy
+columns.addEventListener('load', () => scrollFeed(0), true)
+blog.addEventListener('load', () => scrollFeed(0), true)
+blog.addEventListener('loadedmetadata', () => scrollFeed(0), true)
+columns.addEventListener('loadedmetadata', () => scrollFeed(0), true)
+
+// clicks in a copy behave as in #blog: permalinks route, a post opens its page
+columns.addEventListener('click', (event) => {
+  const link = event.target.closest('a')
+  if (link && link.getAttribute('href').startsWith('/blog')) {
+    event.preventDefault()
+    return go(link.getAttribute('href'))
+  }
+  if (link) return
+  const post = event.target.closest('.post')
+  const copies = post ? [].slice.call(post.parentNode.querySelectorAll(':scope > .post')) : []
+  if (post) go(permalink(posts[copies.indexOf(post)]))
 })
 
 if (!routeBlog() && project) {

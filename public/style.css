@@ -422,19 +422,61 @@ body.blog .left .down #blog-button {
 }
 
 /* feed: one --blog-width column, on the left. All sans serif, links without underline */
-#blog {
+#blog,
+.blog-col {
   font-family: 'Arial', sans-serif;
 }
 
+/* feed on wide screens: the column wraps around to the right. Each copy
+   (#blog-columns, built in main.js) shows the stretch of the feed right below
+   the one before it, hard cut at the panel edges; #right cuts off the last one.
+   Mouse/trackpad only: main.js scrolls them all as one (touch keeps the plain feed) */
+#blog-columns {
+  display: none;
+}
+
+@media screen and (min-width: 451px) and (hover: hover) {
+  .blog #right {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .blog #blog:not(.single) {
+    width: calc(var(--blog-width) + 1.4em);
+    overflow: hidden;
+  }
+
+  .blog #blog:not(.single) ~ #blog-columns {
+    display: block;
+  }
+}
+
+#blog-columns .blog-col {
+  position: absolute;
+  opacity: 0.05;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+#blog-columns .blog-col > div {
+  padding: 0.7em;
+  will-change: transform;
+}
+
 #blog a,
-#blog a:hover {
+#blog a:hover,
+.blog-col a,
+.blog-col a:hover {
   border-bottom: 0;
 }
 
 /* links inside a post's text: a 1px line under them (drawn as a background so
    it can sit 1px higher than a border would) */
 #blog .post p a,
-#blog .post p a:hover {
+#blog .post p a:hover,
+.blog-col .post p a,
+.blog-col .post p a:hover {
   text-decoration: none;
   border-bottom: 0;
   background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
@@ -482,7 +524,8 @@ body.blog .left .down #blog-button {
 }
 
 /* in the feed a whole post is clickable: it opens the post's own page */
-#blog:not(.single) .post {
+#blog:not(.single) .post,
+.blog-col .post {
   cursor: pointer;
 }
 
