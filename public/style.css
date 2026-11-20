@@ -285,12 +285,14 @@ iframe {
   background: var(--secondary);
 }
 
-/* desktop: .down.open (toggled on hover by main.js) grows right (overlaying
-   the preview) and up to 125% of the tallest list (pushing .up, flex: 1, to
-   shrink). Opens/closes instantly, no animation (the glow shadows make
-   animated resizing lag). --down-fit is measured in main.js */
+/* desktop: .down.open (set by main.js after resting on it for a moment) grows
+   right and up to exactly fit its lists (--down-w and --down-fit, measured in
+   main.js on a hidden .measure copy). While open or animating it lies over .up
+   (.left.down-open; --down-h keeps the closed box's place), so .up never
+   re-lays out. .anim: width first, then height, closing the other way round */
 @media screen and (min-width: 451px) {
   .left {
+    position: relative;
     flex: 0 0 auto;
     width: calc(400px + 0.5em);
   }
@@ -307,21 +309,121 @@ iframe {
     height: 7.75em; /* 5 items */
   }
 
-  .left .down.open,
-  .left .down.measure {
-    width: min(600px, calc(100vw - 1em));
+  .left.down-open .up {
+    margin-bottom: calc(var(--down-h, 0px) + 1em);
+  }
+
+  .left.down-open .down {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+  }
+
+  /* opening: first right (width), then after a short pause up (height);
+     closing the other way round. 280ms each, 80ms pause between */
+  .left .down.anim {
+    --down-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .left .down.anim.open {
+    transition: width 280ms var(--down-ease);
+  }
+
+  .left .down.anim.open ul {
+    transition: height 280ms var(--down-ease) 360ms;
+  }
+
+  .left .down.anim:not(.open) {
+    transition: width 280ms var(--down-ease) 360ms;
+  }
+
+  .left .down.anim:not(.open) ul {
+    transition: height 280ms var(--down-ease);
+  }
+
+  /* the fade moves with the width */
+  .left .down.anim.open > div:not(:first-of-type) ul {
+    transition: height 280ms var(--down-ease) 360ms, mask-size 280ms var(--down-ease),
+      -webkit-mask-size 280ms var(--down-ease);
+  }
+
+  .left .down.anim:not(.open) > div:not(:first-of-type) ul {
+    transition: height 280ms var(--down-ease), mask-size 280ms var(--down-ease) 360ms,
+      -webkit-mask-size 280ms var(--down-ease) 360ms;
   }
 
   .left .down.open {
-    background: linear-gradient(black, blue);
+    width: min(var(--down-w, 600px), calc(100vw - 1em));
+  }
+
+  /* the gradient keeps the closed box's height, pinned to the bottom, so it
+     doesn't stretch (and brighten) while the box grows; above it is black */
+  .left .down {
+    background: linear-gradient(transparent, blue) left bottom / 100% var(--down-closed, 100%) no-repeat;
+  }
+
+  .left.down-open .down {
+    background-color: black;
+  }
+
+  /* measuring: every list at its natural width, no fade */
+  .left .down.measure > div:not(:first-of-type) {
+    flex: 0 0 auto;
+  }
+
+  .left .down.measure > div:not(:first-of-type) ul {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  /* Exhibited and Writings keep sharing the width equally when open (the
+     open width leaves each room for the longer one), so they stretch with
+     the box. Their right-edge fade is pushed out past the edge when open
+     (mask-size), and slides out with the same motion */
+  .left .down > div:not(:first-of-type) ul {
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+
+  .left .down.open > div:not(:first-of-type) ul {
+    -webkit-mask-size: calc(100% + 2.5em) 100%;
+    mask-size: calc(100% + 2.5em) 100%;
+  }
+
+  /* Exhibited and Writings run down to the box's bottom edge (through the
+     row's bottom space, which is there for the blog pill under Contact), so
+     while the box grows their text is cut by the edge, not a line inside it.
+     The box keeps its size: the row is as tall as Contact's column anyway.
+     --down-pad = Contact's bottom padding below, in px (0.2em of 20px + 8px) */
+  .left .down {
+    --down-pad: 12px;
+  }
+
+  .left .down > div:not(:first-of-type) ul {
+    height: calc(7.75em + var(--down-pad));
+  }
+
+  .left .down.open > div:not(:first-of-type) ul {
+    height: calc(var(--down-fit, 7.75em) + var(--down-pad));
   }
 
   .left .down.open ul {
-    height: calc(var(--down-fit, 7.75em) * 1.25);
+    height: var(--down-fit, 7.75em);
     max-height: 70vh; /* safety cap: only scrolls if the lists ever get this long */
   }
 
-  /* used by main.js for one synchronous measurement at the open width */
+  /* the hidden copy main.js measures */
+  .left .down.measure {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: max-content;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .left .down.measure ul {
     height: auto;
   }
@@ -451,9 +553,47 @@ body.blog .left .down #blog-button {
   }
 }
 
+/* fades in slowly whenever it appears (opening the feed) */
+@keyframes blog-col-in {
+  from {
+    opacity: 0;
+  }
+}
+
 #blog-columns .blog-col {
   position: absolute;
-  opacity: 0.05;
+  opacity: 0.1;
+  animation: blog-col-in 2.5s ease-in-out;
+  /* fades out towards the right: from fully shown at the left edge to nothing
+     at the right edge, eased (smoothstep), so neither end has a visible edge */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgb(0 0 0 / 1.000) 0%,
+    rgb(0 0 0 / 0.972) 10%,
+    rgb(0 0 0 / 0.896) 20%,
+    rgb(0 0 0 / 0.784) 30%,
+    rgb(0 0 0 / 0.648) 40%,
+    rgb(0 0 0 / 0.500) 50%,
+    rgb(0 0 0 / 0.352) 60%,
+    rgb(0 0 0 / 0.216) 70%,
+    rgb(0 0 0 / 0.104) 80%,
+    rgb(0 0 0 / 0.028) 90%,
+    rgb(0 0 0 / 0.000) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    rgb(0 0 0 / 1.000) 0%,
+    rgb(0 0 0 / 0.972) 10%,
+    rgb(0 0 0 / 0.896) 20%,
+    rgb(0 0 0 / 0.784) 30%,
+    rgb(0 0 0 / 0.648) 40%,
+    rgb(0 0 0 / 0.500) 50%,
+    rgb(0 0 0 / 0.352) 60%,
+    rgb(0 0 0 / 0.216) 70%,
+    rgb(0 0 0 / 0.104) 80%,
+    rgb(0 0 0 / 0.028) 90%,
+    rgb(0 0 0 / 0.000) 100%
+  );
   top: 0;
   bottom: 0;
   overflow: hidden;
@@ -633,7 +773,7 @@ body.blog .left .down #blog-button {
 @media screen and (min-width: 451px) {
   /* room under the Contact list for the blog pill */
   .left .down div:first-of-type {
-    padding-bottom: calc(0.2em + 8px) !important;
+    padding-bottom: var(--down-pad, calc(0.2em + 8px)) !important;
   }
 
   .blog-gallery .left {

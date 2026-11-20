@@ -609,8 +609,8 @@ document.addEventListener('keydown', (event) => {
   if (gallery) gallery.step(event.key === 'ArrowLeft' ? -1 : 1)
 })
 
-// feed on wide screens (mouse/trackpad): a copy of the feed at the right edge
-// of the panel runs in reverse, starting at the end. A single position (pos),
+// feed on wide screens (mouse/trackpad): a copy of the feed right next to it
+// (faded out towards the right) runs in reverse, starting at the end. A single position (pos),
 // moved by the wheel or keys anywhere over the feed, is applied to #blog and
 // the copy in the same frame
 const wide = window.matchMedia('(min-width: 451px) and (hover: hover)')
@@ -628,7 +628,7 @@ function feedShown() {
 }
 
 function buildColumns() {
-  // one copy, flush with the right edge of the panel, if it fits next to #blog
+  // one copy, right next to #blog, if it fits
   const pitch = blog.getBoundingClientRect().width
   const width = right.getBoundingClientRect().width
   if (!feedShown() || width < 2 * pitch) {
@@ -644,7 +644,8 @@ function buildColumns() {
     columns.appendChild(col)
   }
   const col = columns.firstChild
-  col.style.left = `${width - pitch}px`
+  // overlap #blog's right padding, so the gap between the two is one margin
+  col.style.left = `${pitch - parseFloat(getComputedStyle(blog).paddingRight)}px`
   col.style.width = `${pitch}px`
   scrollFeed(blog.scrollTop - pos) // re-apply (routeBlog may have reset #blog)
 }
@@ -784,30 +785,70 @@ projs.forEach((element) => {
   })
 })
 
-// footer lists: measure the tallest list so the CSS hover state can size to it
+// footer lists: measure the lists' natural size (height of the tallest, width
+// of all side by side) so the CSS open state can fit them exactly
 const down = document.querySelector('.left .down')
 
 function measureDown() {
-  // lay the lists out at the hover width with natural height, read, restore (no paint in between)
-  down.classList.add('measure')
-  const lists = [].slice.call(down.querySelectorAll('ul'))
+  // on an invisible copy, so the real one's size animation isn't touched
+  const copy = down.cloneNode(true)
+  copy.classList.remove('open')
+  copy.classList.add('measure')
+  copy.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'))
+  down.parentNode.appendChild(copy)
+  const lists = [].slice.call(copy.querySelectorAll('ul'))
   const fit = Math.max(...lists.map((ul) => ul.scrollHeight))
-  down.classList.remove('measure')
+  // Exhibited and Writings share the open width equally: room for the longer
+  // one twice
+  const [a, b] = [].filter
+    .call(copy.children, (e) => e.tagName === 'DIV')
+    .slice(1)
+    .map((e) => e.getBoundingClientRect().width)
+  const width = Math.ceil(copy.getBoundingClientRect().width + Math.abs(a - b))
+  copy.remove()
   down.style.setProperty('--down-fit', `${fit}px`)
-  down.style.setProperty('--contact-w', `${down.querySelector('div').offsetWidth}px`)
+  down.style.setProperty('--down-w', `${width}px`)
+  if (!down.classList.contains('open')) {
+    down.style.setProperty('--contact-w', `${down.querySelector('div').offsetWidth}px`)
+    down.style.setProperty('--down-closed', `${down.getBoundingClientRect().height}px`)
+  }
 }
 
 measureDown()
 window.addEventListener('resize', measureDown)
 document.fonts.ready.then(measureDown)
 
-// open/close the footer instantly (no animation: the 100em glow shadows make
-// any animated resize repaint too slowly)
+// the footer opens only after resting on it for a moment (OPEN_DELAY), then
+// grows to fit its lists: first right, then after a short pause up;
+// leaving closes it the other way round. Plain CSS transitions (.anim, style.css),
+// only while opening/closing so other size changes stay instant. While open
+// or animating it lies over .up instead of pushing it (.down-open)
+const OPEN_DELAY = 400
+const ANIM_TIME = 640 // 280ms + 80ms pause + 280ms, as in style.css
+const leftColumn = down.parentNode
+let openTimer = null
+let animTimer = null
+
 function setDownOpen(open) {
+  clearTimeout(openTimer)
+  if (down.classList.contains('open') === open) return
+  if (open && !leftColumn.classList.contains('down-open')) {
+    leftColumn.style.setProperty('--down-h', `${down.getBoundingClientRect().height}px`)
+    leftColumn.classList.add('down-open')
+  }
+  down.classList.add('anim')
   down.classList.toggle('open', open)
+  clearTimeout(animTimer)
+  animTimer = setTimeout(() => {
+    down.classList.remove('anim')
+    if (!down.classList.contains('open')) leftColumn.classList.remove('down-open')
+  }, ANIM_TIME + 50)
 }
 
-down.addEventListener('mouseenter', () => setDownOpen(true))
+down.addEventListener('mouseenter', () => {
+  clearTimeout(openTimer)
+  openTimer = setTimeout(() => setDownOpen(true), OPEN_DELAY)
+})
 down.addEventListener('mouseleave', () => setDownOpen(false))
 // moving straight onto the preview iframe (or out of the window) may not fire
 // mouseleave; mouseout does, with a relatedTarget outside .down (or null)
