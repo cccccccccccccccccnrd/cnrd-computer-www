@@ -281,6 +281,8 @@ iframe {
   padding: 0.4em;
 }
 
+/* hover image: follows the mouse, cut off at the left column's edges
+   (clip-path from main.js; overflow: hidden on .left would also cut the open footer) */
 #c {
   display: none;
   position: fixed;
@@ -457,7 +459,7 @@ iframe {
   }
 }
 
-/* hover preview image stays above everything, including the expanded .down */
+/* hover image above everything, including the expanded .down */
 #c {
   z-index: 100;
 }

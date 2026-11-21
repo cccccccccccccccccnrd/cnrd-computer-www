@@ -749,16 +749,25 @@ function ccc(path) {
   }
 }
 
+// the hover image follows the mouse, clipped to the left column's box
+const leftBox = document.querySelector('.left')
 document.addEventListener('mousemove', (event) => {
-  c.style.left = `${event.clientX + 15}px`
-  c.style.top = `${event.clientY + 15}px`
+  const x = event.clientX + 15
+  const y = event.clientY + 15
+  const box = leftBox.getBoundingClientRect()
+  c.style.left = `${x}px`
+  c.style.top = `${y}px`
+  c.style.clipPath = `inset(${box.top - y}px calc(100% - ${box.right - x}px) calc(100% - ${box.bottom - y}px) ${box.left - x}px)`
 })
 
-bio.addEventListener('mouseenter', (event) => {
+// the bio image shows only while hovering the "designer of computer equipment" link
+const bioLink = bio.querySelector('a[href="https://c-e.group/"]')
+
+bioLink.addEventListener('mouseenter', (event) => {
   ccc('bio-gcc.jpg')
 })
 
-bio.addEventListener('mouseleave', (event) => {
+bioLink.addEventListener('mouseleave', (event) => {
   ccc()
 })
 
