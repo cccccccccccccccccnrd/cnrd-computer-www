@@ -849,6 +849,38 @@ function setDownOpen(open) {
   }, ANIM_TIME + 50)
 }
 
+// gallery pages: the collapsed left column glides open and shut (.glide,
+// style.css). .glide is switched off whenever the page changes layout (load,
+// route changes) and back on two frames later, so only hovering animates.
+// .closing keeps the column opaque while it glides shut
+const GLIDE_TIME = 1400
+let glideTimer = null
+let wasGallery = null
+
+function syncGlide() {
+  const gallery = document.body.classList.contains('blog-gallery')
+  if (gallery === wasGallery) return
+  wasGallery = gallery
+  leftColumn.classList.remove('glide', 'closing')
+  if (gallery) requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (document.body.classList.contains('blog-gallery')) leftColumn.classList.add('glide')
+  }))
+}
+
+syncGlide()
+new MutationObserver(syncGlide).observe(document.body, { attributes: true, attributeFilter: ['class'] })
+
+leftColumn.addEventListener('mouseenter', () => {
+  clearTimeout(glideTimer)
+  leftColumn.classList.remove('closing')
+})
+leftColumn.addEventListener('mouseleave', () => {
+  if (!leftColumn.classList.contains('glide')) return
+  leftColumn.classList.add('closing')
+  clearTimeout(glideTimer)
+  glideTimer = setTimeout(() => leftColumn.classList.remove('closing'), Math.max(GLIDE_TIME, ANIM_TIME) + 50)
+})
+
 down.addEventListener('mouseenter', () => {
   clearTimeout(openTimer)
   openTimer = setTimeout(() => setDownOpen(true), OPEN_DELAY)

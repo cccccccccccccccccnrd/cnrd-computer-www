@@ -810,7 +810,7 @@ body.blog .left .down #blog-button {
 
   /* gallery pages only: the boxes shrink to --blog-left, the content keeps its 400px layout and is cut off */
   .blog-gallery .left .up,
-  .blog-gallery .left .down:not(.open) {
+  .blog-gallery .left .down:not(.open):not(.measure) {
     width: var(--blog-left);
   }
 
@@ -820,15 +820,33 @@ body.blog .left .down #blog-button {
   }
 
   /* Exhibited/Writings keep their 400px-layout widths (--contact-w from main.js) */
-  .blog-gallery .left .down:not(.open) > div:not(:first-of-type) {
+  .blog-gallery .left .down:not(.open):not(.measure) > div:not(:first-of-type) {
     flex: 0 0 calc((400px - var(--contact-w, 0px)) / 2);
   }
 
-  /* hovering the left side snaps the boxes back to 400px at once (no
-     animation), over the blog, which keeps its size */
+  /* hovering the left side brings the boxes back to 400px, over the blog,
+     which keeps its size */
   .blog-gallery .left {
     position: relative;
     z-index: 10;
+  }
+
+  /* the opening glides like the footer (main.js OPEN_DELAY, --down-glide):
+     after resting 400ms, the boxes widen with the same 1400ms curve; leaving
+     glides them shut at once. Column width and negative margin move together,
+     so the blog panel stays put. The footer's own .anim transitions win.
+     Only while .glide is set (main.js: off while the page changes layout),
+     so page loads and route changes don't animate */
+  .blog-gallery .left.glide,
+  .blog-gallery .left.glide .up,
+  .blog-gallery .left.glide .down:not(.anim) {
+    transition: width 1400ms cubic-bezier(0.08, 1, 0.12, 1), margin-right 1400ms cubic-bezier(0.08, 1, 0.12, 1);
+  }
+
+  .blog-gallery .left.glide:hover,
+  .blog-gallery .left.glide:hover .up,
+  .blog-gallery .left.glide:hover .down:not(.anim) {
+    transition-delay: 400ms;
   }
 
   /* the whole column (gaps included) widens, the negative margin keeps the
@@ -843,15 +861,20 @@ body.blog .left .down #blog-button {
     width: 400px;
   }
 
-  .blog-gallery .left:hover .up {
+  /* opaque while open and while gliding shut, so the column stays on top of
+     the blog with its own border showing */
+  .blog-gallery .left:hover .up,
+  .blog-gallery .left.closing .up {
     background: black;
   }
 
-  .blog-gallery .left:hover .down {
+  .blog-gallery .left:hover .down,
+  .blog-gallery .left.closing .down {
     background: linear-gradient(transparent, blue), black;
   }
 
-  .blog-gallery .left:hover .down.open {
+  .blog-gallery .left:hover .down.open,
+  .blog-gallery .left.closing .down.open {
     background: linear-gradient(black, blue);
   }
 }
