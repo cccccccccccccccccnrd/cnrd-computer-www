@@ -762,7 +762,7 @@ bio.addEventListener('mouseleave', (event) => {
 const phone = window.matchMedia('(max-width: 450px)')
 
 function wwwLink(element) {
-  return [].slice.call(element.querySelectorAll('p a')).find((a) => a.textContent.trim() === 'www') || null
+  return element.querySelector('a.www')
 }
 
 projs.forEach((element) => {
@@ -773,15 +773,6 @@ projs.forEach((element) => {
       return
     }
     open(this)
-  })
-
-  element.addEventListener('mouseenter', (event) => {
-    const path = element.getAttribute('data-visual')
-    ccc(path)
-  })
-
-  element.addEventListener('mouseleave', (event) => {
-    ccc()
   })
 })
 

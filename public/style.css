@@ -124,6 +124,24 @@ h3 {
   font-size: 1em;
 }
 
+/* year on the left, the project's www link at the far right of the same row */
+.year-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* several links: kept inline so their hover border doesn't grow the row */
+.year-row .links {
+  text-align: right;
+}
+
+/* in the flex row the link is a box, so the 100px hover border would grow the
+   row: a matching negative margin keeps its layout size, nothing moves */
+.year-row .www:hover {
+  margin-bottom: -98px;
+}
+
 .proj {
   margin: 1.5em 0;
   scroll-margin-top: 1em; /* ?project= deep links: keep the title off the top edge */
@@ -180,7 +198,7 @@ h3 {
 }
 
 .down ul {
-  max-height: 7.75em; /* 5 items: 5 × (1.15em line + 0.4em padding) */
+  max-height: 7.65em; /* 5 items: 5 × (1.13em line + 0.4em padding) */
   /* max-width: 8.5em; */
   font-size: 0.8em;
   overflow: hidden;
@@ -229,6 +247,13 @@ h3 {
 .left {
   display: flex;
   flex-flow: column nowrap;
+  font-size: calc(var(--font-size) - 2px);
+  line-height: 1.13;
+}
+
+/* project titles: larger than the browser default (1.5em of the base font) */
+.left h2 {
+  font-size: calc(var(--font-size) * 1.6);
 }
 
 .left .up {
@@ -244,14 +269,12 @@ iframe {
 }
 
 .proj.show,
-.proj.show * {
+.proj.show *,
+.proj[data-url]:hover,
+.proj[data-url]:hover * {
   /* color: black;
   background: white; */
   box-shadow: 0 0 5em blue;
-}
-
-.proj[data-url]:hover {
-  background: blue;
 }
 
 #bio {
@@ -306,7 +329,7 @@ iframe {
 
   .left .down ul {
     max-height: none;
-    height: 7.75em; /* 5 items */
+    height: 7.65em; /* 5 items */
   }
 
   .left.down-open .up {
@@ -398,24 +421,24 @@ iframe {
      row's bottom space, which is there for the blog pill under Contact), so
      while the box grows their text is cut by the edge, not a line inside it.
      The box keeps its size: the row is as tall as Contact's column anyway.
-     --down-pad = Contact's bottom padding below, in px (0.2em of 20px + 8px) */
+     --down-pad = Contact's bottom padding below, in px (0.2em of 18px + 8px) */
   .left .down {
     --down-pad: 12px;
     --down-trim: 3px;
   }
 
   .left .down > div:not(:first-of-type) ul {
-    height: calc(7.75em + var(--down-pad));
+    height: calc(7.65em + var(--down-pad));
   }
 
   /* open: --down-trim less, so the last line sits as far above the bottom
      edge as the Contact text is from the left edge */
   .left .down.open > div:not(:first-of-type) ul {
-    height: calc(var(--down-fit, 7.75em) + var(--down-pad) - var(--down-trim));
+    height: calc(var(--down-fit, 7.65em) + var(--down-pad) - var(--down-trim));
   }
 
   .left .down.open ul {
-    height: calc(var(--down-fit, 7.75em) - var(--down-trim));
+    height: calc(var(--down-fit, 7.65em) - var(--down-trim));
     max-height: 70vh; /* safety cap: only scrolls if the lists ever get this long */
   }
 
@@ -441,7 +464,7 @@ iframe {
 
 @media screen and (max-width: 450px) {
   body {
-    font-size: 18px;
+    --font-size: 18px;
   }
 
   .left .up,
