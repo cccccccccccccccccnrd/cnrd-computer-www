@@ -573,6 +573,18 @@ body.blog .left .down #rss-button {
   }
 }
 
+/* leaving the blog: it stays shown while it slides back down (.leaving, main.js) */
+.left .down #rss-button.leaving {
+  display: inline-flex;
+  animation: rss-out 1400ms cubic-bezier(0.08, 1, 0.12, 1) forwards;
+}
+
+@keyframes rss-out {
+  to {
+    transform: translateY(calc(100% + 4px));
+  }
+}
+
 #blog {
   display: none;
   height: 100%;

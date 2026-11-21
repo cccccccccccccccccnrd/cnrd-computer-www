@@ -7,9 +7,16 @@ const right = document.querySelector('#right')
 const projs = [].slice.call(document.querySelectorAll('.proj'))
 const project = new URLSearchParams(window.location.search).get('project')
 const blogButton = document.querySelector('#blog-button')
+const rssButton = document.querySelector('#rss-button')
 
 // blog mode: #right shows #blog instead of the iframe; on a gallery's own page the left column also collapses (--blog-left in style.css)
 function setBlog(on) {
+  // leaving the blog: the rss pill slides back down before it disappears
+  if (!on && document.body.classList.contains('blog')) {
+    rssButton.classList.add('leaving')
+  } else if (on) {
+    rssButton.classList.remove('leaving')
+  }
   document.body.classList.toggle('blog', on)
   if (!on) document.body.classList.remove('blog-gallery')
   if (on) {
@@ -818,12 +825,16 @@ measureDown()
 window.addEventListener('resize', measureDown)
 document.fonts.ready.then(measureDown)
 
-// the rss pill sits right of the blog button
+// the rss pill sits right of the blog button, on top of the lists
 function placeRss() {
   down.style.setProperty('--blog-btn-w', `${blogButton.offsetWidth}px`)
 }
 placeRss()
 document.fonts.ready.then(placeRss)
+window.addEventListener('resize', placeRss)
+rssButton.addEventListener('animationend', (event) => {
+  if (event.animationName === 'rss-out') rssButton.classList.remove('leaving')
+})
 
 // the footer opens only after resting on it for a moment (OPEN_DELAY), then
 // grows to fit its lists: first right, then after a short pause up;
