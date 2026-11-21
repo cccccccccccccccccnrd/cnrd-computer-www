@@ -703,7 +703,7 @@ body.blog .left .down #rss-button {
 .post {
   width: var(--blog-width);
   max-width: 100%;
-  margin: 0 0 1.5em 0;
+  margin: 0 0 5px 0;
   padding: 0;
 }
 
@@ -728,6 +728,11 @@ body.blog .left .down #rss-button {
 .post p {
   margin: 0 0 1em 0;
   font-size: 0.8em;
+}
+
+/* the last paragraph's gap would add to the space between posts */
+.post .body > p:last-child {
+  margin-bottom: 0;
 }
 
 /* picture/video posts and collections. Feed: every item, one after another,
@@ -755,6 +760,12 @@ body.blog .left .down #rss-button {
   max-width: none;
   height: auto;
   margin: 0 0 0.5em 0;
+}
+
+/* the last picture's gap would show between posts */
+.post.gallery .slides > :last-child,
+.post.stack .slides > :last-child {
+  margin-bottom: 0;
 }
 
 /* a collection (folder) shows only its cover picture in the feed */
