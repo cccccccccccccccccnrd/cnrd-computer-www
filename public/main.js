@@ -691,19 +691,6 @@ blog.addEventListener('load', () => scrollFeed(0), true)
 blog.addEventListener('loadedmetadata', () => scrollFeed(0), true)
 columns.addEventListener('loadedmetadata', () => scrollFeed(0), true)
 
-// clicks in a copy behave as in #blog: permalinks route, a post opens its page
-columns.addEventListener('click', (event) => {
-  const link = event.target.closest('a')
-  if (link && link.getAttribute('href').startsWith('/blog')) {
-    event.preventDefault()
-    return go(link.getAttribute('href'))
-  }
-  if (link) return
-  const post = event.target.closest('.post')
-  const copies = post ? [].slice.call(post.parentNode.querySelectorAll(':scope > .post')) : []
-  if (post) go(permalink(posts[copies.indexOf(post)]))
-})
-
 // old ?project= ids that were renamed, so shared links keep working
 const renamed = { 'synthetic-velocity': 'syn-vel' }
 
@@ -830,6 +817,13 @@ function measureDown() {
 measureDown()
 window.addEventListener('resize', measureDown)
 document.fonts.ready.then(measureDown)
+
+// the rss pill sits right of the blog button
+function placeRss() {
+  down.style.setProperty('--blog-btn-w', `${blogButton.offsetWidth}px`)
+}
+placeRss()
+document.fonts.ready.then(placeRss)
 
 // the footer opens only after resting on it for a moment (OPEN_DELAY), then
 // grows to fit its lists: first right, then after a short pause up;

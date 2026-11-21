@@ -537,6 +537,32 @@ body.blog .left .down #blog-button {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), 0 0 1em rgb(0 0 255 / 0.28), 0 1px 2px rgb(0 0 0 / 0.5);
 }
 
+/* rss: a white pill right of the blog button, only while the blog is open.
+   Its left edge (--blog-btn-w) is the blog button's width, from main.js */
+.left .down #rss-button {
+  position: absolute;
+  left: calc(var(--blog-btn-w, 56px) + 5px);
+  bottom: 2px; /* text level with the blog button's */
+  z-index: 1;
+  display: none;
+  align-items: center;
+  /* line box 3px tighter on each side, the bottom gets 3px back, plus 1px top and bottom */
+  padding: 1px 7px 4px !important;
+  font-family: var(--font-family);
+  font-size: 0.8em;
+  line-height: calc(1.15em - 6px);
+  color: #000;
+  background: #fff;
+  border: 1px solid rgb(255 255 255 / 0.7);
+  border-radius: 19px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), 0 0 1em rgb(0 0 255 / 0.28), 0 1px 2px rgb(0 0 0 / 0.5);
+  cursor: pointer;
+  user-select: none;
+}
+
+body.blog .left .down #rss-button {
+  display: inline-flex;
+}
 
 #blog {
   display: none;
@@ -593,6 +619,7 @@ body.blog .left .down #blog-button {
 #blog-columns .blog-col {
   position: absolute;
   opacity: 0.1;
+  pointer-events: none; /* only an image of the feed: no hover, no clicks (wheel scrolling still works, it's on #right) */
   animation: blog-col-in 2.5s ease-in-out;
   /* fades out towards the right: from fully shown at the left edge to nothing
      at the right edge, eased (smoothstep), so neither end has a visible edge */
