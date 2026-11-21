@@ -704,10 +704,15 @@ columns.addEventListener('click', (event) => {
   if (post) go(permalink(posts[copies.indexOf(post)]))
 })
 
+// old ?project= ids that were renamed, so shared links keep working
+const renamed = { 'synthetic-velocity': 'syn-vel' }
+
 if (!routeBlog() && project) {
-  const element = document.querySelector(`#${project}`)
-  element.scrollIntoView()
-  open(element)
+  const element = document.getElementById(renamed[project] || project)
+  if (element) {
+    element.scrollIntoView()
+    open(element)
+  }
 }
 
 function open(element) {
