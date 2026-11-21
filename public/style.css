@@ -560,8 +560,17 @@ body.blog .left .down #blog-button {
   user-select: none;
 }
 
+/* it slides up from below the box's bottom edge whenever it appears (page
+   load on /blog, or opening the blog), with the footer's glide */
 body.blog .left .down #rss-button {
   display: inline-flex;
+  animation: rss-in 1400ms cubic-bezier(0.08, 1, 0.12, 1) 200ms backwards;
+}
+
+@keyframes rss-in {
+  from {
+    transform: translateY(calc(100% + 4px));
+  }
 }
 
 #blog {
